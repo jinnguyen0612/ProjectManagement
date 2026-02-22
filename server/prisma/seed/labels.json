@@ -1,0 +1,56 @@
+[
+    {
+        "id": 1,
+        "projectId": 1,
+        "name": "Bug",
+        "bgColor": "#EF4444"
+    },
+    {
+        "id": 2,
+        "projectId": 1,
+        "name": "Feature",
+        "bgColor": "#3B82F6"
+    },
+    {
+        "id": 3,
+        "projectId": 1,
+        "name": "Enhancement",
+        "bgColor": "#8B5CF6"
+    },
+    {
+        "id": 4,
+        "projectId": 1,
+        "name": "Urgent",
+        "bgColor": "#F97316"
+    },
+    {
+        "id": 5,
+        "projectId": 2,
+        "name": "Bug",
+        "bgColor": "#EF4444"
+    },
+    {
+        "id": 6,
+        "projectId": 2,
+        "name": "Feature",
+        "bgColor": "#3B82F6"
+    },
+    {
+        "id": 7,
+        "projectId": 2,
+        "name": "UI/UX",
+        "bgColor": "#EC4899"
+    },
+    {
+        "id": 8,
+        "projectId": 3,
+        "name": "API",
+        "bgColor": "#14B8A6"
+    },
+    {
+        "id": 9,
+        "projectId": 3,
+        "name": "Documentation",
+        "bgColor": "#A855F7"
+    }
+]

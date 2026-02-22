@@ -1,0 +1,319 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//
+// ENUMS
+//
+enum UserStatus {
+  active
+  blocked
+
+  @@map("user_status")
+}
+
+enum ProjectStatus {
+  active
+  archived
+
+  @@map("project_status")
+}
+
+enum MemberRole {
+  leader
+  member
+
+  @@map("member_role")
+}
+
+//
+// MODELS (plural)
+//
+model Users {
+  id        BigInt     @id @default(autoincrement())
+  email     String     @unique @db.VarChar(255)
+  phone     String?    @unique @db.VarChar(255)
+  avatar    String?    @db.Text
+  fullname  String     @db.VarChar(255)
+  password  String     @db.VarChar(255)
+  status    UserStatus
+  createdAt DateTime   @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime   @map("updated_at") @db.Timestamp(0)
+
+  // Relations
+  projectsOwned     Projects[]      @relation("ProjectOwner")
+  members           Members[]
+  createdTasks      Tasks[]         @relation("TaskCreator")
+  sentNotifications Notifications[] @relation("NotificationSender")
+  recvNotifications Notifications[] @relation("NotificationReceiver")
+  addedMembers      Members[]       @relation("MemberAddedBy")
+  jwtTokens         JwtTokens[]
+
+  usersRoles       UsersRoles[]
+  usersPermissions UsersPermissions[]
+
+  @@index([status])
+  @@map("users")
+}
+
+model Roles {
+  id   BigInt @id @default(autoincrement())
+  name String @unique @db.VarChar(255)
+
+  usersRoles       UsersRoles[]
+  rolesPermissions RolesPermissions[]
+
+  @@map("roles")
+}
+
+model Permissions {
+  id   BigInt @id @default(autoincrement())
+  key  String @unique @db.VarChar(255)
+  name String @db.VarChar(255)
+
+  rolesPermissions   RolesPermissions[]
+  usersPermissions   UsersPermissions[]
+  membersPermissions MembersPermissions[]
+
+  @@map("permissions")
+}
+
+//
+// PIVOTS (khuôn mẫu)
+//
+model UsersRoles {
+  userId BigInt @map("user_id")
+  roleId BigInt @map("role_id")
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Roles @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@index([roleId])
+  @@map("users_roles")
+}
+
+model RolesPermissions {
+  roleId       BigInt @map("role_id")
+  permissionId BigInt @map("permission_id")
+
+  role       Roles       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permissions @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
+  @@map("roles_permissions")
+}
+
+model UsersPermissions {
+  userId       BigInt  @map("user_id")
+  permissionId BigInt  @map("permission_id")
+  isDeny       Boolean @default(false) @map("is_deny")
+
+  user       Users       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission Permissions @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([userId, permissionId])
+  @@index([permissionId])
+  @@map("users_permissions")
+}
+
+model Projects {
+  id          BigInt        @id @default(autoincrement())
+  code        String        @unique @db.VarChar(255)
+  name        String        @db.VarChar(255)
+  description String?       @db.Text
+  status      ProjectStatus
+  bgColor     String?       @map("bg_color") @db.VarChar(50)
+  ownerId     BigInt        @map("owner_id")
+  createdAt   DateTime      @map("created_at") @db.Timestamp(0)
+  updatedAt   DateTime      @map("updated_at") @db.Timestamp(0)
+
+  owner    Users      @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  members  Members[]
+  statuses Statuses[]
+  labels   Labels[]
+  tasks    Tasks[]
+
+  @@index([ownerId])
+  @@index([status])
+  @@map("projects")
+}
+
+model Members {
+  id        BigInt     @id @default(autoincrement())
+  userId    BigInt     @map("user_id")
+  projectId BigInt     @map("project_id")
+  role      MemberRole
+  addBy     BigInt?    @map("add_by")
+  joinedAt  DateTime   @map("joined_at") @db.Timestamp(0)
+
+  user    Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  addedBy Users?   @relation("MemberAddedBy", fields: [addBy], references: [id], onDelete: SetNull)
+
+  membersPermissions MembersPermissions[]
+  tasksMembers       TasksMembers[]
+
+  @@unique([projectId, userId], map: "members_project_id_user_id_key")
+  @@index([userId])
+  @@index([projectId])
+  @@index([role])
+  @@map("members")
+}
+
+model MembersPermissions {
+  memberId     BigInt  @map("member_id")
+  permissionId BigInt  @map("permission_id")
+  isDeny       Boolean @default(false) @map("is_deny")
+
+  member     Members     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  permission Permissions @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([memberId, permissionId])
+  @@index([permissionId])
+  @@map("members_permissions")
+}
+
+model Statuses {
+  id        BigInt  @id @default(autoincrement())
+  projectId BigInt  @map("project_id")
+  name      String  @db.VarChar(255)
+  bgColor   String? @map("bg_color") @db.VarChar(50)
+
+  project Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   Tasks[]
+
+  @@unique([projectId, name], map: "statuses_project_id_name_key")
+  @@index([projectId])
+  @@map("statuses")
+}
+
+model Labels {
+  id        BigInt  @id @default(autoincrement())
+  projectId BigInt  @map("project_id")
+  name      String  @db.VarChar(255)
+  bgColor   String? @map("bg_color") @db.VarChar(50)
+
+  project     Projects      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasksLabels TasksLabels[]
+
+  @@unique([projectId, name], map: "labels_project_id_name_key")
+  @@index([projectId])
+  @@map("labels")
+}
+
+model Tasks {
+  id        BigInt    @id @default(autoincrement())
+  code      String    @db.VarChar(255)
+  projectId BigInt    @map("project_id")
+  bgColor   String?   @map("bg_color") @db.VarChar(50)
+  statusId  BigInt    @map("status_id")
+  dateStart DateTime? @map("date_start") @db.Timestamp(0)
+  dateEnd   DateTime? @map("date_end") @db.Timestamp(0)
+  position  BigInt    @default(0)
+  createdBy BigInt?   @map("created_by")
+  createdAt DateTime  @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime  @map("updated_at") @db.Timestamp(0)
+
+  project Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  status  Statuses @relation(fields: [statusId], references: [id], onDelete: Restrict)
+  creator Users?   @relation("TaskCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+
+  tasksMembers TasksMembers[]
+  tasksLabels  TasksLabels[]
+
+  @@unique([projectId, code], map: "tasks_project_id_code_key")
+  @@index([projectId])
+  @@index([statusId])
+  @@index([createdBy])
+  @@index([position])
+  @@map("tasks")
+}
+
+model TasksMembers {
+  taskId   BigInt @map("task_id")
+  memberId BigInt @map("member_id")
+
+  task   Tasks   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  member Members @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, memberId])
+  @@index([memberId])
+  @@map("tasks_members")
+}
+
+model TasksLabels {
+  taskId  BigInt @map("task_id")
+  labelId BigInt @map("label_id")
+
+  task  Tasks  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  label Labels @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, labelId])
+  @@index([labelId])
+  @@map("tasks_labels")
+}
+
+model Otps {
+  id        BigInt    @id @default(autoincrement())
+  email     String    @unique @db.VarChar(255)
+  otp       String?   @db.VarChar(255)
+  expiredAt DateTime? @map("expired_at") @db.Timestamp(0)
+
+  @@index([expiredAt])
+  @@map("otps")
+}
+
+model Notifications {
+  id         BigInt   @id @default(autoincrement())
+  senderId   BigInt   @map("sender_id")
+  receiverId BigInt   @map("receiver_id")
+  title      String   @db.VarChar(255)
+  content    String?  @db.Text
+  isRead     Boolean  @default(false) @map("is_read")
+  createdAt  DateTime @map("created_at") @db.Timestamp(0)
+
+  sender      Users         @relation("NotificationSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    Users         @relation("NotificationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  attachments Attachments[]
+
+  @@index([receiverId])
+  @@index([receiverId, isRead])
+  @@index([receiverId, createdAt])
+  @@index([senderId])
+  @@map("notifications")
+}
+
+model Attachments {
+  id             BigInt @id @default(autoincrement())
+  notificationId BigInt @map("notification_id")
+  link           String @db.Text
+
+  notification Notifications @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([notificationId])
+  @@map("attachments")
+}
+
+model JwtTokens {
+  id               BigInt    @id @default(autoincrement())
+  userId           BigInt    @map("user_id")
+  refreshTokenHash String    @unique @map("refresh_token_hash") @db.Text
+  expiredAt        DateTime  @map("expired_at") @db.Timestamp(0)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamp(0)
+  ipAddress        String?   @map("ip_address") @db.Text
+  userAgent        String?   @map("user_agent") @db.Text
+  createdAt        DateTime  @map("created_at") @db.Timestamp(0)
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, revokedAt])
+  @@index([expiredAt])
+  @@map("jwt_tokens")
+}

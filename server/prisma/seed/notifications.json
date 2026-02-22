@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "senderId": 1,
+        "receiverId": 2,
+        "title": "Welcome to the team!",
+        "content": "You have been added to the Website Redesign project.",
+        "isRead": true,
+        "createdAt": "2026-01-06T00:00:00.000Z"
+    },
+    {
+        "id": 2,
+        "senderId": 1,
+        "receiverId": 3,
+        "title": "Task assigned",
+        "content": "You have been assigned to TASK-002 in Website Redesign.",
+        "isRead": false,
+        "createdAt": "2026-01-12T00:00:00.000Z"
+    },
+    {
+        "id": 3,
+        "senderId": 2,
+        "receiverId": 4,
+        "title": "New project member",
+        "content": "Welcome to Mobile App Development project!",
+        "isRead": false,
+        "createdAt": "2026-01-11T00:00:00.000Z"
+    }
+]

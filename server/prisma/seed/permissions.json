@@ -1,0 +1,67 @@
+[
+    {
+        "id": 1,
+        "key": "project.create",
+        "name": "Create Project"
+    },
+    {
+        "id": 2,
+        "key": "project.read",
+        "name": "Read Project"
+    },
+    {
+        "id": 3,
+        "key": "project.update",
+        "name": "Update Project"
+    },
+    {
+        "id": 4,
+        "key": "project.delete",
+        "name": "Delete Project"
+    },
+    {
+        "id": 5,
+        "key": "task.create",
+        "name": "Create Task"
+    },
+    {
+        "id": 6,
+        "key": "task.read",
+        "name": "Read Task"
+    },
+    {
+        "id": 7,
+        "key": "task.update",
+        "name": "Update Task"
+    },
+    {
+        "id": 8,
+        "key": "task.delete",
+        "name": "Delete Task"
+    },
+    {
+        "id": 9,
+        "key": "member.add",
+        "name": "Add Member"
+    },
+    {
+        "id": 10,
+        "key": "member.remove",
+        "name": "Remove Member"
+    },
+    {
+        "id": 11,
+        "key": "member.update_role",
+        "name": "Update Member Role"
+    },
+    {
+        "id": 12,
+        "key": "label.manage",
+        "name": "Manage Labels"
+    },
+    {
+        "id": 13,
+        "key": "status.manage",
+        "name": "Manage Statuses"
+    }
+]

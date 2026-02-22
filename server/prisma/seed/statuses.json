@@ -1,0 +1,62 @@
+[
+    {
+        "id": 1,
+        "projectId": 1,
+        "name": "To Do",
+        "bgColor": "#6B7280"
+    },
+    {
+        "id": 2,
+        "projectId": 1,
+        "name": "In Progress",
+        "bgColor": "#F59E0B"
+    },
+    {
+        "id": 3,
+        "projectId": 1,
+        "name": "Review",
+        "bgColor": "#8B5CF6"
+    },
+    {
+        "id": 4,
+        "projectId": 1,
+        "name": "Done",
+        "bgColor": "#10B981"
+    },
+    {
+        "id": 5,
+        "projectId": 2,
+        "name": "Backlog",
+        "bgColor": "#6B7280"
+    },
+    {
+        "id": 6,
+        "projectId": 2,
+        "name": "In Progress",
+        "bgColor": "#F59E0B"
+    },
+    {
+        "id": 7,
+        "projectId": 2,
+        "name": "Testing",
+        "bgColor": "#3B82F6"
+    },
+    {
+        "id": 8,
+        "projectId": 2,
+        "name": "Done",
+        "bgColor": "#10B981"
+    },
+    {
+        "id": 9,
+        "projectId": 3,
+        "name": "To Do",
+        "bgColor": "#6B7280"
+    },
+    {
+        "id": 10,
+        "projectId": 3,
+        "name": "Done",
+        "bgColor": "#10B981"
+    }
+]

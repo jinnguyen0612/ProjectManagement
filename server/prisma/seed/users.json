@@ -1,0 +1,57 @@
+[
+    {
+        "id": 1,
+        "email": "admin@example.com",
+        "phone": "0901000001",
+        "avatar": null,
+        "fullname": "Admin User",
+        "password": "$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36zQvHwKZz6USqb7UkYSVi6",
+        "status": "active",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+        "id": 2,
+        "email": "manager@example.com",
+        "phone": "0901000002",
+        "avatar": null,
+        "fullname": "Manager User",
+        "password": "$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36zQvHwKZz6USqb7UkYSVi6",
+        "status": "active",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+        "id": 3,
+        "email": "user1@example.com",
+        "phone": "0901000003",
+        "avatar": null,
+        "fullname": "User One",
+        "password": "$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36zQvHwKZz6USqb7UkYSVi6",
+        "status": "active",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+        "id": 4,
+        "email": "user2@example.com",
+        "phone": "0901000004",
+        "avatar": null,
+        "fullname": "User Two",
+        "password": "$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36zQvHwKZz6USqb7UkYSVi6",
+        "status": "active",
+        "createdAt": "2026-01-02T00:00:00.000Z",
+        "updatedAt": "2026-01-02T00:00:00.000Z"
+    },
+    {
+        "id": 5,
+        "email": "blocked@example.com",
+        "phone": "0901000005",
+        "avatar": null,
+        "fullname": "Blocked User",
+        "password": "$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36zQvHwKZz6USqb7UkYSVi6",
+        "status": "blocked",
+        "createdAt": "2026-01-03T00:00:00.000Z",
+        "updatedAt": "2026-01-03T00:00:00.000Z"
+    }
+]

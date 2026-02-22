@@ -1,0 +1,30 @@
+[
+    {
+        "taskId": 1,
+        "memberId": 1
+    },
+    {
+        "taskId": 1,
+        "memberId": 2
+    },
+    {
+        "taskId": 2,
+        "memberId": 3
+    },
+    {
+        "taskId": 3,
+        "memberId": 2
+    },
+    {
+        "taskId": 4,
+        "memberId": 1
+    },
+    {
+        "taskId": 5,
+        "memberId": 4
+    },
+    {
+        "taskId": 6,
+        "memberId": 5
+    }
+]

@@ -1,0 +1,35 @@
+[
+    {
+        "id": 1,
+        "code": "PRJ-001",
+        "name": "Website Redesign",
+        "description": "Redesign the company website with modern UI/UX",
+        "status": "active",
+        "bgColor": "#4F46E5",
+        "ownerId": 1,
+        "createdAt": "2026-01-05T00:00:00.000Z",
+        "updatedAt": "2026-01-05T00:00:00.000Z"
+    },
+    {
+        "id": 2,
+        "code": "PRJ-002",
+        "name": "Mobile App Development",
+        "description": "Build a cross-platform mobile application",
+        "status": "active",
+        "bgColor": "#059669",
+        "ownerId": 2,
+        "createdAt": "2026-01-10T00:00:00.000Z",
+        "updatedAt": "2026-01-10T00:00:00.000Z"
+    },
+    {
+        "id": 3,
+        "code": "PRJ-003",
+        "name": "API Integration",
+        "description": "Integrate third-party APIs into the system",
+        "status": "archived",
+        "bgColor": "#DC2626",
+        "ownerId": 1,
+        "createdAt": "2026-01-15T00:00:00.000Z",
+        "updatedAt": "2026-02-01T00:00:00.000Z"
+    }
+]
