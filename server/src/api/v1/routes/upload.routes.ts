@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { authenticate } from "../../middlewares/auth.middleware";
-import { uploadSingleImage, uploadMultipleImages, uploadSingleVideo } from "../../infrastructure/configs/multer";
-import { uploadImage, uploadImages, uploadVideo } from "./upload.controller";
+import { authenticate } from "../middlewares/auth.middleware";
+import { uploadSingleImage, uploadMultipleImages, uploadSingleVideo } from "../../../core/config/multer";
+import { uploadImage, uploadImages, uploadVideo } from "../modules/upload/upload.controller";
 
 const router = Router();
 

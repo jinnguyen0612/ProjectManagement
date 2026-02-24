@@ -1,5 +1,5 @@
 import jwt, { SignOptions } from "jsonwebtoken";
-import { env } from "../configs/env";
+import { env } from "../../core/config/env";
 import { AccessTokenPayload, RefreshTokenPayload } from "../../core/types/jwt.type";
 import prisma from "./prisma";
 import { hashToken } from "./bcrypt";
@@ -30,6 +30,12 @@ export const verifyAccessToken = (token: string) => {
 
 export const verifyRefreshToken = (token: string) => {
     return jwt.verify(token, env.REFRESH_SECRET) as RefreshTokenPayload;
+};
+
+// --- Decode ---
+
+export const decodeToken = (token: string) => {
+    return jwt.decode(token) as AccessTokenPayload | RefreshTokenPayload;
 };
 
 // --- Database (jwt_tokens) ---

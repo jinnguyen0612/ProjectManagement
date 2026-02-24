@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { validate } from "../../middlewares/validate.middleware";
-import { authLimiter } from "../../infrastructure/configs/rateLimiter";
-import { loginSchema, registerSchema, resendOTPSchema, verifyRegisterSchema } from "./auth.schema";
-import { login, register, resendOTP, verifyRegister } from "./auth.controller";
+import { validate } from "../middlewares/validate.middleware";
+import { authLimiter } from "../../../core/config/rateLimiter";
+import { loginSchema, refreshTokenSchema, registerSchema, resendOTPSchema, verifyRegisterSchema } from "../modules/auth/auth.schema";
+import { login, refreshToken, register, resendOTP, verifyRegister, getMe } from "../modules/auth/auth.controller";
+import { authenticate } from "../middlewares/auth.middleware";
 
 const router = Router();
 router.use(authLimiter);
@@ -199,5 +200,56 @@ router.post("/resend-otp", validate(resendOTPSchema), resendOTP);
  *         description: Invalid OTP
  */
 router.post("/verify-register", validate(verifyRegisterSchema), verifyRegister);
+
+/**
+ * @swagger
+ * /api/auth/refresh-token:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Refresh token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - accessToken
+ *               - refreshToken
+ *             properties:
+ *               accessToken:
+ *                 type: string
+ *                 example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *               refreshToken:
+ *                 type: string
+ *                 example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *     responses:
+ *       200:
+ *         description: Token refreshed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Token refreshed successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     accessToken:
+ *                       type: string
+ *                     refreshToken:
+ *                       type: string
+ *       401:
+ *         description: Invalid token
+ */
+router.post("/refresh-token", validate(refreshTokenSchema), refreshToken);
+
+router.get("/me", authenticate, getMe);
 
 export default router;

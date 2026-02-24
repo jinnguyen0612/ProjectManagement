@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { OtpType } from "../../core/enums/OtpType";
+import { OtpType } from "../../../../core/enums/OtpType";
 
 export const registerSchema = z.object({
   body: z.object({
@@ -32,7 +32,15 @@ export const verifyRegisterSchema = z.object({
   }),
 });
 
+export const refreshTokenSchema = z.object({
+  body: z.object({
+    accessToken: z.string().min(1, "Access token is required"),
+    refreshToken: z.string().min(1, "Refresh token is required"),
+  }),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>["body"];
 export type LoginInput = z.infer<typeof loginSchema>["body"];
 export type VerifyRegisterInput = z.infer<typeof verifyRegisterSchema>["body"];
 export type ResendOTPIput = z.infer<typeof resendOTPSchema>["body"];
+export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>["body"];

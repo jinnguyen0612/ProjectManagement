@@ -1,12 +1,12 @@
-import prisma from "../../infrastructure/libs/prisma";
-import { AppError } from "../../core/errors/AppError";
-import { hashPassword, comparePassword } from "../../infrastructure/libs/bcrypt";
-import { signAccessToken, signRefreshToken, storeRefreshToken } from "../../infrastructure/libs/jwt";
-import { RegisterInput, LoginInput, VerifyRegisterInput, ResendOTPIput } from "./auth.schema";
-import { UserStatus } from "../../core/types/User/user-status";
-import { sendWelcomeEmail } from "../../infrastructure/libs/email";
-import { generateCode, generateOTP } from "../../utils/random";
-import { OtpType } from "../../core/enums/OtpType";
+import prisma from "../../../../infrastructure/libs/prisma";
+import { AppError } from "../../../../core/errors/AppError";
+import { hashPassword, comparePassword, compareToken } from "../../../../infrastructure/libs/bcrypt";
+import { decodeToken, signAccessToken, signRefreshToken, storeRefreshToken } from "../../../../infrastructure/libs/jwt";
+import { RegisterInput, LoginInput, VerifyRegisterInput, ResendOTPIput, RefreshTokenInput } from "./auth.schema";
+import { UserStatus } from "../../../../core/types/User/user-status";
+import { sendWelcomeEmail } from "../../../../infrastructure/services/email.service";
+import { generateCode, generateOTP } from "../../../../core/utils/otp";
+import { OtpType } from "../../../../core/enums/OtpType";
 
 export class AuthService {
     static async register(data: RegisterInput) {
@@ -132,6 +132,23 @@ export class AuthService {
             userId: Number(user.id),
         });
 
+        const hasLogin = await prisma.jwtTokens.findFirst({
+            where: {
+                userId: user.id,
+                ipAddress: ipAddress,
+                userAgent: userAgent,
+                revokedAt: null,
+            }
+        });
+
+        if (hasLogin) {
+            await prisma.jwtTokens.delete({
+                where: {
+                    id: hasLogin.id,
+                }
+            });
+        }
+
         await storeRefreshToken(user.id, refreshToken, ipAddress, userAgent);
 
         const { password, ...userWithoutPassword } = user;
@@ -212,5 +229,53 @@ export class AuthService {
 
         const { password, ...userWithoutPassword } = user;
         return { user: userWithoutPassword, accessToken, refreshToken };
+    };
+
+    static async refreshToken(data: RefreshTokenInput, ipAddress?: string, userAgent?: string) {
+        const userId = decodeToken(data.accessToken)?.userId;
+
+        if (!userId) {
+            throw new AppError("Invalid access token", 401);
+        }
+
+        const user = await prisma.users.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            throw new AppError("User not found", 404);
+        }
+
+        const jwtToken = await prisma.jwtTokens.findFirst({
+            where: {
+                userId: userId,
+                ipAddress: ipAddress,
+                userAgent: userAgent,
+                revokedAt: null,
+            }
+        });
+
+        console.log("jwtToken", jwtToken);
+
+        if (!jwtToken) {
+            throw new AppError("Invalid refresh token", 401);
+        }
+
+        const isMatch = await compareToken(data.refreshToken, jwtToken.refreshTokenHash);
+        console.log("isMatch", isMatch);
+
+        if (!isMatch) {
+            throw new AppError("Invalid refresh token", 401);
+        }
+
+        const { role, permissions } = await this.getUserRolesAndPermissions(user.id);
+
+        const accessToken = signAccessToken({
+            userId: Number(user.id),
+            role: role,
+            permissions: permissions,
+        });
+
+        return { accessToken };
     };
 }

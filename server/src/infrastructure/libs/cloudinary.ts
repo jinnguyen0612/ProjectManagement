@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import { randomUUID } from "crypto";
-import { env } from "../configs/env";
+import { env } from "../../core/config/env";
 
 cloudinary.config({
   cloud_name: env.CLOUDINARY_CLOUD_NAME,

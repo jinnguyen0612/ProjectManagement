@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { env } from "../configs/env";
+import { env } from "../../core/config/env";
 
 const SALT_ROUNDS = Number(env.BCRYPT_SALT_ROUNDS) || 12;
 

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
-import { sendResponse } from "../../utils/response";
-import { asyncHandler } from "../../utils/asyncHandler";
+import { sendResponse } from "../../../../shared/responses/sendResponse";
+import { asyncHandler } from "../../../../shared/asyncHandler";
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
     const user = await AuthService.register(req.body);
@@ -45,5 +45,30 @@ export const verifyRegister = asyncHandler(async (req: Request, res: Response) =
         success: true,
         message: "User verified successfully. Please login to continue",
         data: user,
+    });
+});
+
+export const refreshToken = asyncHandler(async (req: Request, res: Response) => {
+    const ipAddress = req.ip || req.socket.remoteAddress;
+    const userAgent = req.headers["user-agent"];
+
+    const result = await AuthService.refreshToken(req.body, ipAddress, userAgent);
+
+    return sendResponse(res, 200, {
+        success: true,
+        message: "Refresh token successful",
+        data: result,
+    });
+});
+import { currentUser, currentUserId } from "../../../../hooks/useAuth";
+
+export const getMe = asyncHandler(async (req: Request, res: Response) => {
+    const userId = currentUserId();
+    const user = await currentUser();
+
+    return sendResponse(res, 200, {
+        success: true,
+        message: "Get current user successful",
+        data: { userId, user },
     });
 });

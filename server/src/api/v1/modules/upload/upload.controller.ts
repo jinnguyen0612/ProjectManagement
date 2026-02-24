@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { asyncHandler } from "../../utils/asyncHandler";
-import { sendResponse, sendError } from "../../utils/response";
-import { uploadToCloudinary } from "../../infrastructure/libs/cloudinary";
+import { asyncHandler } from "../../../../shared/asyncHandler";
+import { sendResponse, sendError } from "../../../../shared/responses/sendResponse";
+import { uploadToCloudinary } from "../../../../infrastructure/libs/cloudinary";
 
 // Upload 1 ảnh
 export const uploadImage = asyncHandler(async (req: Request, res: Response) => {

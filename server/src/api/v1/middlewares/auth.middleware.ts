@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyAccessToken } from "../infrastructure/libs/jwt";
-import { AccessTokenPayload } from "../core/types/jwt.type";
+import { verifyAccessToken } from "../../../infrastructure/libs/jwt";
+import { AccessTokenPayload } from "../../../core/types/jwt.type";
+import { runWithUser } from "../../../hooks/useUserContext";
 
 declare global {
     namespace Express {
@@ -29,7 +30,9 @@ export const authenticate = (
     try {
         const payload = verifyAccessToken(token);
         req.user = payload;
-        next();
+        runWithUser(payload, () => {
+            next();
+        });
     } catch (error: any) {
         if (error.name === "TokenExpiredError") {
             return res.status(401).json({

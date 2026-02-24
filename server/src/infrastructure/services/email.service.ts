@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
-import { env } from "../configs/env";
-import { logError, logInfo } from "../../utils/logger";
+import { env } from "../../core/config/env";
+import { logError, logInfo } from "../../shared/logger";
 import { SendEmailOptions } from "../../core/types/mails.type";
 import fs from "fs";
 import path from "path";
@@ -40,7 +40,7 @@ export const sendEmail = async (options: SendEmailOptions) => {
 export const sendWelcomeEmail = async (to: string, phone: string, fullname: string, otp: string) => {
     try {
         const subject = "Welcome to Project Management!";
-        const templatePath = path.resolve(__dirname, "../../mails/welcome.html");
+        const templatePath = path.resolve(__dirname, "../templates/emails/welcome.html");
 
         // Read the HTML template
         let html = fs.readFileSync(templatePath, "utf-8");
