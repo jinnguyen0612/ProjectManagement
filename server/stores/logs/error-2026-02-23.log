@@ -1,0 +1,4 @@
+[2026-02-23 09:47:49] ::1 [ERROR]: Error: Email already exists
+    at Function.register (C:\Persional\projects\JS\ProjectManagement\server\src\modules\auth\auth.service.ts:18:19)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Persional\projects\JS\ProjectManagement\server\src\modules\auth\auth.controller.ts:7:18

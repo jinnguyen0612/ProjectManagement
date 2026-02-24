@@ -1,0 +1,203 @@
+import { Router } from "express";
+import { validate } from "../../middlewares/validate.middleware";
+import { authLimiter } from "../../infrastructure/configs/rateLimiter";
+import { loginSchema, registerSchema, resendOTPSchema, verifyRegisterSchema } from "./auth.schema";
+import { login, register, resendOTP, verifyRegister } from "./auth.controller";
+
+const router = Router();
+router.use(authLimiter);
+
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Login
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: user@example.com or 0123456789
+ *               password:
+ *                 type: string
+ *                 minLength: 6
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Login successful
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                     accessToken:
+ *                       type: string
+ *                     refreshToken:
+ *                       type: string
+ *       401:
+ *         description: Invalid credentials
+ */
+router.post("/login", validate(loginSchema), login);
+
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Register
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - fullname
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 minLength: 6
+ *                 example: "123456"
+ *               fullname:
+ *                 type: string
+ *                 example: Nguyen Van A
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: User registered successfully
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Email already exists
+ */
+router.post("/register", validate(registerSchema), register);
+
+/**
+ * @swagger
+ * /api/auth/resend-otp:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Resend OTP
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - type
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *               type:
+ *                 type: string
+ *                 enum: ["register", "forgot_password"]
+ *                 example: "register"
+ *     responses:
+ *       200:
+ *         description: OTP resent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: OTP resent successfully
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Invalid OTP
+ */
+router.post("/resend-otp", validate(resendOTPSchema), resendOTP);
+
+/**
+ * @swagger
+ * /api/auth/verify-register:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Verify register
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: User verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: User verified successfully
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Invalid OTP
+ */
+router.post("/verify-register", validate(verifyRegisterSchema), verifyRegister);
+
+export default router;

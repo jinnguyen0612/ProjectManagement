@@ -11,6 +11,7 @@ datasource db {
 //
 enum UserStatus {
   active
+  inactive
   blocked
 
   @@map("user_status")

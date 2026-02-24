@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "user_status" AS ENUM ('active', 'blocked');
+CREATE TYPE "user_status" AS ENUM ('active', 'inactive', 'blocked');
 
 -- CreateEnum
 CREATE TYPE "project_status" AS ENUM ('active', 'archived');
