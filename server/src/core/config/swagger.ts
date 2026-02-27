@@ -4,6 +4,20 @@ import { Express, Router } from "express";
 
 const options = {
     definition: {
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
+                },
+            },
+        },
+        security: [
+            {
+                bearerAuth: [],
+            },
+        ],
         openapi: "3.0.0",
         info: {
             title: "Project Management API",

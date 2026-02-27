@@ -7,6 +7,7 @@ import { UserStatus } from "../../../../core/types/User/user-status";
 import { sendWelcomeEmail } from "../../../../infrastructure/services/email.service";
 import { generateCode, generateOTP } from "../../../../core/utils/otp";
 import { OtpType } from "../../../../core/enums/OtpType";
+import { currentUserId } from "../../../../hooks/useAuth";
 
 export class AuthService {
     static async register(data: RegisterInput) {
@@ -255,14 +256,11 @@ export class AuthService {
             }
         });
 
-        console.log("jwtToken", jwtToken);
-
         if (!jwtToken) {
             throw new AppError("Invalid refresh token", 401);
         }
 
         const isMatch = await compareToken(data.refreshToken, jwtToken.refreshTokenHash);
-        console.log("isMatch", isMatch);
 
         if (!isMatch) {
             throw new AppError("Invalid refresh token", 401);

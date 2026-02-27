@@ -41,6 +41,8 @@ model Users {
   avatar    String?    @db.Text
   fullname  String     @db.VarChar(255)
   password  String     @db.VarChar(255)
+  bio       String?    @db.Text
+  address   String?    @db.Text
   status    UserStatus
   createdAt DateTime   @map("created_at") @db.Timestamp(0)
   updatedAt DateTime   @map("updated_at") @db.Timestamp(0)

@@ -2,15 +2,14 @@ import { Router } from "express";
 import { validate } from "../middlewares/validate.middleware";
 import { authLimiter } from "../../../core/config/rateLimiter";
 import { loginSchema, refreshTokenSchema, registerSchema, resendOTPSchema, verifyRegisterSchema } from "../modules/auth/auth.schema";
-import { login, refreshToken, register, resendOTP, verifyRegister, getMe } from "../modules/auth/auth.controller";
-import { authenticate } from "../middlewares/auth.middleware";
+import { login, refreshToken, register, resendOTP, verifyRegister } from "../modules/auth/auth.controller";
 
 const router = Router();
 router.use(authLimiter);
 
 /**
  * @swagger
- * /api/auth/login:
+ * /api/v1/auth/login:
  *   post:
  *     tags:
  *       - Auth
@@ -62,7 +61,7 @@ router.post("/login", validate(loginSchema), login);
 
 /**
  * @swagger
- * /api/auth/register:
+ * /api/v1/auth/register:
  *   post:
  *     tags:
  *       - Auth
@@ -112,7 +111,7 @@ router.post("/register", validate(registerSchema), register);
 
 /**
  * @swagger
- * /api/auth/resend-otp:
+ * /api/v1/auth/resend-otp:
  *   post:
  *     tags:
  *       - Auth
@@ -158,7 +157,7 @@ router.post("/resend-otp", validate(resendOTPSchema), resendOTP);
 
 /**
  * @swagger
- * /api/auth/verify-register:
+ * /api/v1/auth/verify-register:
  *   post:
  *     tags:
  *       - Auth
@@ -203,7 +202,7 @@ router.post("/verify-register", validate(verifyRegisterSchema), verifyRegister);
 
 /**
  * @swagger
- * /api/auth/refresh-token:
+ * /api/v1/auth/refresh-token:
  *   post:
  *     tags:
  *       - Auth
@@ -249,7 +248,5 @@ router.post("/verify-register", validate(verifyRegisterSchema), verifyRegister);
  *         description: Invalid token
  */
 router.post("/refresh-token", validate(refreshTokenSchema), refreshToken);
-
-router.get("/me", authenticate, getMe);
 
 export default router;

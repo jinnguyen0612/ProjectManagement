@@ -7,6 +7,8 @@
         "fullname": "Admin User",
         "password": "$2a$12$JyCwBHYtYw026y8rKwiBTuNTqQFPkDlcPACemh93.D5IDj8e2K.m2",
         "status": "active",
+        "bio": "Admin User",
+        "address": "",
         "createdAt": "2026-01-01T00:00:00.000Z",
         "updatedAt": "2026-01-01T00:00:00.000Z"
     },
@@ -18,6 +20,8 @@
         "fullname": "Manager User",
         "password": "$2a$12$JyCwBHYtYw026y8rKwiBTuNTqQFPkDlcPACemh93.D5IDj8e2K.m2",
         "status": "active",
+        "bio": "Manager User",
+        "address": "",
         "createdAt": "2026-01-01T00:00:00.000Z",
         "updatedAt": "2026-01-01T00:00:00.000Z"
     },
@@ -29,6 +33,8 @@
         "fullname": "User One",
         "password": "$2a$12$JyCwBHYtYw026y8rKwiBTuNTqQFPkDlcPACemh93.D5IDj8e2K.m2",
         "status": "active",
+        "bio": "User One",
+        "address": "",
         "createdAt": "2026-01-01T00:00:00.000Z",
         "updatedAt": "2026-01-01T00:00:00.000Z"
     },
@@ -40,6 +46,8 @@
         "fullname": "User Two",
         "password": "$2a$12$JyCwBHYtYw026y8rKwiBTuNTqQFPkDlcPACemh93.D5IDj8e2K.m2",
         "status": "active",
+        "bio": "User Two",
+        "address": "",
         "createdAt": "2026-01-02T00:00:00.000Z",
         "updatedAt": "2026-01-02T00:00:00.000Z"
     },
@@ -51,6 +59,8 @@
         "fullname": "Blocked User",
         "password": "$2a$12$JyCwBHYtYw026y8rKwiBTuNTqQFPkDlcPACemh93.D5IDj8e2K.m2",
         "status": "blocked",
+        "bio": "Blocked User",
+        "address": "",
         "createdAt": "2026-01-03T00:00:00.000Z",
         "updatedAt": "2026-01-03T00:00:00.000Z"
     }

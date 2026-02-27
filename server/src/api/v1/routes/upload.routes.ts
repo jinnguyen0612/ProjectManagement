@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { authenticate } from "../middlewares/auth.middleware";
 import { uploadSingleImage, uploadMultipleImages, uploadSingleVideo } from "../../../core/config/multer";
 import { uploadImage, uploadImages, uploadVideo } from "../modules/upload/upload.controller";
 
@@ -7,7 +6,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/upload/image:
+ * /api/v1/upload/image:
  *   post:
  *     tags:
  *       - Upload
@@ -32,7 +31,7 @@ router.post("/image", uploadSingleImage, uploadImage);
 
 /**
  * @swagger
- * /api/upload/images:
+ * /api/v1/upload/images:
  *   post:
  *     tags:
  *       - Upload
@@ -59,7 +58,7 @@ router.post("/images", uploadMultipleImages, uploadImages);
 
 /**
  * @swagger
- * /api/upload/video:
+ * /api/v1/upload/video:
  *   post:
  *     tags:
  *       - Upload

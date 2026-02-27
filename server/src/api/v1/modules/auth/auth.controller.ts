@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { sendResponse } from "../../../../shared/responses/sendResponse";
 import { asyncHandler } from "../../../../shared/asyncHandler";
+import { currentUser, currentUserId } from "../../../../hooks/useAuth";
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
     const user = await AuthService.register(req.body);
@@ -58,17 +59,5 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
         success: true,
         message: "Refresh token successful",
         data: result,
-    });
-});
-import { currentUser, currentUserId } from "../../../../hooks/useAuth";
-
-export const getMe = asyncHandler(async (req: Request, res: Response) => {
-    const userId = currentUserId();
-    const user = await currentUser();
-
-    return sendResponse(res, 200, {
-        success: true,
-        message: "Get current user successful",
-        data: { userId, user },
     });
 });

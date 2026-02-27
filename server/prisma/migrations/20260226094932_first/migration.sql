@@ -15,6 +15,8 @@ CREATE TABLE "users" (
     "avatar" TEXT,
     "fullname" VARCHAR(255) NOT NULL,
     "password" VARCHAR(255) NOT NULL,
+    "bio" TEXT,
+    "address" TEXT,
     "status" "user_status" NOT NULL,
     "created_at" TIMESTAMP(0) NOT NULL,
     "updated_at" TIMESTAMP(0) NOT NULL,
