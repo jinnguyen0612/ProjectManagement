@@ -201,6 +201,17 @@ CREATE TABLE "jwt_tokens" (
     CONSTRAINT "jwt_tokens_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "app_using_api" (
+    "id" BIGSERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "apiKey" TEXT NOT NULL,
+    "user_id" BIGINT NOT NULL,
+    "created_at" TIMESTAMP(0) NOT NULL,
+
+    CONSTRAINT "app_using_api_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
@@ -315,6 +326,9 @@ CREATE INDEX "jwt_tokens_user_id_revoked_at_idx" ON "jwt_tokens"("user_id", "rev
 -- CreateIndex
 CREATE INDEX "jwt_tokens_expired_at_idx" ON "jwt_tokens"("expired_at");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "app_using_api_apiKey_key" ON "app_using_api"("apiKey");
+
 -- AddForeignKey
 ALTER TABLE "users_roles" ADD CONSTRAINT "users_roles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -389,3 +403,6 @@ ALTER TABLE "attachments" ADD CONSTRAINT "attachments_notification_id_fkey" FORE
 
 -- AddForeignKey
 ALTER TABLE "jwt_tokens" ADD CONSTRAINT "jwt_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "app_using_api" ADD CONSTRAINT "app_using_api_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

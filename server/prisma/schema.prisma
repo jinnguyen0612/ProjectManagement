@@ -55,6 +55,7 @@ model Users {
   recvNotifications Notifications[] @relation("NotificationReceiver")
   addedMembers      Members[]       @relation("MemberAddedBy")
   jwtTokens         JwtTokens[]
+  appUsingAPI       AppUsingAPI[]
 
   usersRoles       UsersRoles[]
   usersPermissions UsersPermissions[]
@@ -319,4 +320,16 @@ model JwtTokens {
   @@index([userId, revokedAt])
   @@index([expiredAt])
   @@map("jwt_tokens")
+}
+
+model AppUsingAPI {
+  id        BigInt   @id @default(autoincrement())
+  name      String   @db.Text
+  apiKey    String   @unique @db.Text
+  userId    BigInt   @map("user_id")
+  createdAt DateTime @map("created_at") @db.Timestamp(0)
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("app_using_api")
 }

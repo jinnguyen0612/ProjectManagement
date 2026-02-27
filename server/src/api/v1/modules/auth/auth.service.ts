@@ -5,7 +5,7 @@ import { decodeToken, signAccessToken, signRefreshToken, storeRefreshToken } fro
 import { RegisterInput, LoginInput, VerifyRegisterInput, ResendOTPIput, RefreshTokenInput } from "./auth.schema";
 import { UserStatus } from "../../../../core/types/User/user-status";
 import { sendWelcomeEmail } from "../../../../infrastructure/services/email.service";
-import { generateCode, generateOTP } from "../../../../core/utils/otp";
+import { generateCode, generateOTP } from "../../../../core/utils/generate-code";
 import { OtpType } from "../../../../core/enums/OtpType";
 import { currentUserId } from "../../../../hooks/useAuth";
 
