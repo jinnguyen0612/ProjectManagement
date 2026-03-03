@@ -3,3 +3,9 @@ export enum UserRole {
     USER = "user",
     STAFF = "staff",
 }
+
+export enum MemberRole {
+    LEADER = "leader",
+    MEMBER = "member",
+    VIEWER = "viewer",
+}

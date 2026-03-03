@@ -27,6 +27,7 @@ enum ProjectStatus {
 enum MemberRole {
   leader
   member
+  viewer
 
   @@map("member_role")
 }

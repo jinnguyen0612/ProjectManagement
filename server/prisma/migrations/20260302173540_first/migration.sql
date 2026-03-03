@@ -5,7 +5,7 @@ CREATE TYPE "user_status" AS ENUM ('active', 'inactive', 'blocked');
 CREATE TYPE "project_status" AS ENUM ('active', 'archived');
 
 -- CreateEnum
-CREATE TYPE "member_role" AS ENUM ('leader', 'member');
+CREATE TYPE "member_role" AS ENUM ('leader', 'member', 'viewer');
 
 -- CreateTable
 CREATE TABLE "users" (
