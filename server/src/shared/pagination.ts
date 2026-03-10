@@ -124,6 +124,8 @@ export function parseQueryParamsWithFilters(
 
 /**
  * Build Prisma where condition từ filters
+ * Hỗ trợ nhiều điều kiện cho 1 trường bằng cách thêm suffix vào key
+ * Ví dụ: ?age_gte=18&age_lte=65 => age: { gte: 18, lte: 65 }
  */
 export function buildWhereCondition(
     baseCondition: any,
@@ -131,44 +133,72 @@ export function buildWhereCondition(
     filterConfig: Record<string, 'exact' | 'contains' | 'in' | 'number' | 'boolean'> = {}
 ): any {
     const whereCondition = { ...baseCondition };
+    const fieldOperators: Record<string, any> = {};
     
     Object.keys(filters).forEach(key => {
         const value = filters[key];
-        const type = filterConfig[key] || 'exact';
         
-        switch (type) {
-            case 'contains':
-                // Text search với LIKE
-                whereCondition[key] = {
-                    contains: value,
-                    mode: 'insensitive',
-                };
-                break;
-                
-            case 'in':
-                // Array values (ví dụ: role=admin,user)
+        // Check nếu key có operator suffix (_gt, _gte, _lt, _lte, _not, _contains, _startsWith, _endsWith)
+        const operatorMatch = key.match(/^(.+)_(gt|gte|lt|lte|not|contains|startsWith|endsWith|in)$/);
+        
+        if (operatorMatch) {
+            // Key có operator: age_gte => field: age, operator: gte
+            const [, fieldName, operator] = operatorMatch;
+            
+            if (!fieldOperators[fieldName]) {
+                fieldOperators[fieldName] = {};
+            }
+            
+            // Parse value theo operator
+            if (operator === 'in') {
                 const values = Array.isArray(value) ? value : value.split(',');
-                whereCondition[key] = {
-                    in: values,
-                };
-                break;
-                
-            case 'number':
-                // Number comparison
-                whereCondition[key] = parseInt(value);
-                break;
-                
-            case 'boolean':
-                // Boolean values
-                whereCondition[key] = value === 'true' || value === true;
-                break;
-                
-            case 'exact':
-            default:
-                // Exact match
-                whereCondition[key] = value;
-                break;
+                fieldOperators[fieldName][operator] = values;
+            } else if (operator === 'contains' || operator === 'startsWith' || operator === 'endsWith') {
+                fieldOperators[fieldName][operator] = value;
+                fieldOperators[fieldName]['mode'] = 'insensitive';
+            } else if (operator === 'gt' || operator === 'gte' || operator === 'lt' || operator === 'lte') {
+                fieldOperators[fieldName][operator] = isNaN(value) ? value : Number(value);
+            } else {
+                fieldOperators[fieldName][operator] = value;
+            }
+        } else {
+            // Key không có operator, xử lý theo filterConfig
+            const type = filterConfig[key] || 'exact';
+            
+            switch (type) {
+                case 'contains':
+                    whereCondition[key] = {
+                        contains: value,
+                        mode: 'insensitive',
+                    };
+                    break;
+                    
+                case 'in':
+                    const values = Array.isArray(value) ? value : value.split(',');
+                    whereCondition[key] = {
+                        in: values,
+                    };
+                    break;
+                    
+                case 'number':
+                    whereCondition[key] = parseInt(value);
+                    break;
+                    
+                case 'boolean':
+                    whereCondition[key] = value === 'true' || value === true;
+                    break;
+                    
+                case 'exact':
+                default:
+                    whereCondition[key] = value;
+                    break;
+            }
         }
+    });
+    
+    // Merge fieldOperators vào whereCondition
+    Object.keys(fieldOperators).forEach(fieldName => {
+        whereCondition[fieldName] = fieldOperators[fieldName];
     });
     
     return whereCondition;

@@ -8,6 +8,7 @@ import { sendWelcomeEmail } from "../../../../infrastructure/services/email.serv
 import { generateCode, generateOTP } from "../../../../core/utils/generate-code";
 import { OtpType } from "../../../../core/enums/OtpType";
 import { currentUserId } from "../../../../hooks/useAuth";
+import { UserRole } from "../../../../core/enums/Role";
 
 export class AuthService {
     static async register(data: RegisterInput) {
@@ -27,19 +28,42 @@ export class AuthService {
             throw new AppError("Phone already exists", 409);
         }
 
-        const hashedPassword = await hashPassword(data.password);
+        const { confirmPassword, ...userData } = data;
+        const hashedPassword = await hashPassword(userData.password);
 
-        const user = await prisma.users.create({
-            data: {
-                email: data.email,
-                phone: data.phone,
-                password: hashedPassword,
-                avatar: data.avatar,
-                fullname: data.fullname,
-                status: UserStatus.INACTIVE,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            },
+        const roleUser = await prisma.roles.findUnique({
+            where: { name: UserRole.USER }
+        });
+
+        if (!roleUser) {
+            throw new AppError("Default user role not found", 500);
+        }
+
+        // Tạo user và gắn role trong transaction
+        const user = await prisma.$transaction(async (tx) => {
+            // Tạo user
+            const newUser = await tx.users.create({
+                data: {
+                    email: userData.email,
+                    phone: userData.phone,
+                    password: hashedPassword,
+                    avatar: userData.avatar,
+                    fullname: userData.fullname,
+                    status: UserStatus.INACTIVE,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                },
+            });
+
+            // Gắn role "user" cho user mới
+            await tx.usersRoles.create({
+                data: {
+                    userId: newUser.id,
+                    roleId: roleUser.id,
+                }
+            });
+
+            return newUser;
         });
 
         const { password, ...userWithoutPassword } = user;
@@ -108,6 +132,7 @@ export class AuthService {
                     { email: data.username },
                     { phone: data.username },
                 ],
+                status: UserStatus.ACTIVE,
             },
         });
 
@@ -264,6 +289,17 @@ export class AuthService {
 
         if (!isMatch) {
             throw new AppError("Invalid refresh token", 401);
+        }
+
+        if(jwtToken.expiredAt && jwtToken.expiredAt < new Date()){
+            await prisma.jwtTokens.deleteMany({
+                where: {
+                    userId: userId,
+                    ipAddress: ipAddress,
+                    userAgent: userAgent,
+                }
+            });
+            throw new AppError("Refresh token expired", 401);
         }
 
         const { role, permissions } = await this.getUserRolesAndPermissions(user.id);

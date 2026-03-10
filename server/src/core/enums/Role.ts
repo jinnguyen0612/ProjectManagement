@@ -1,7 +1,7 @@
 export enum UserRole {
     ADMIN = "admin",
     USER = "user",
-    STAFF = "staff",
+    MANAGER = "manager",
 }
 
 export enum MemberRole {

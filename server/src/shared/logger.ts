@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { Request } from "express";
+import { env } from "../core/config/env";
 
 const STORES_DIR = path.resolve(__dirname, "../../stores/logs");
 
@@ -16,7 +17,10 @@ const getDateStr = () => {
 };
 
 const getDateTimeStr = () => {
-    return new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = new Date();
+    const offsetMs = env.TIMEZONE_OFFSET * 60 * 60 * 1000;
+    const localTime = new Date(now.getTime() + offsetMs);
+    return localTime.toISOString().replace("T", " ").substring(0, 19);
 };
 
 const getIp = (req?: Request) => {

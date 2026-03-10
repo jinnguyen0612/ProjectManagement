@@ -3,6 +3,7 @@ import authRoutes from "./auth.routes";
 import uploadRoutes from "./upload.routes";
 import profileRoutes from "./profile.routes";
 import apiKeyRoutes from "./api-key.routes";
+import userRoutes from "./user.routes"
 import { validateApiKey } from "../middlewares/apiKey.middleware";
 
 const router = Router();
@@ -14,5 +15,6 @@ router.use("/auth", authRoutes);
 router.use("/api-key", apiKeyRoutes);
 router.use("/upload", uploadRoutes);
 router.use("/profile", profileRoutes);
+router.use("/user", userRoutes)
 
 export default router;
