@@ -3,7 +3,7 @@ import { sendResponse } from "../../../../shared/responses/sendResponse";
 import { asyncHandler } from "../../../../shared/asyncHandler";
 import { createPaginationResponse, parseQueryParamsWithFilters } from "../../../../shared/pagination";
 import { ProjectService } from "./project.service";
-import { getProjectDetailSchema, updateProjectSchema, archiveProjectSchema } from "./project.schema";
+import { getProjectDetailSchema, updateProjectSchema, archiveProjectSchema, starProjectSchema } from "./project.schema";
 
 export const getProjects = asyncHandler(async (req: Request, res: Response) => {
 
@@ -72,4 +72,16 @@ export const archiveProject = asyncHandler(async (req: Request, res: Response) =
         message: "Project archived successfully",
         data: project,
     });
+})
+
+export const starProject = asyncHandler(async (req: Request, res: Response) => {
+    const { params } = starProjectSchema.parse({ params: req.params });
+    await ProjectService.starProject(params.id);
+    return sendResponse(res, 200, { success: true, message: "Project starred", data: null });
+})
+
+export const unstarProject = asyncHandler(async (req: Request, res: Response) => {
+    const { params } = starProjectSchema.parse({ params: req.params });
+    await ProjectService.unstarProject(params.id);
+    return sendResponse(res, 200, { success: true, message: "Project unstarred", data: null });
 })

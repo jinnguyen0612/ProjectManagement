@@ -60,6 +60,7 @@ model Users {
 
   usersRoles       UsersRoles[]
   usersPermissions UsersPermissions[]
+  projectStars     ProjectStars[]
 
   @@index([status])
   @@map("users")
@@ -153,10 +154,24 @@ model Projects {
   statuses Statuses[]
   labels   Labels[]
   tasks    Tasks[]
+  stars    ProjectStars[]
 
   @@index([ownerId])
   @@index([status])
   @@map("projects")
+}
+
+model ProjectStars {
+  userId    BigInt   @map("user_id")
+  projectId BigInt   @map("project_id")
+  createdAt DateTime @map("created_at") @db.Timestamp(0)
+
+  user    Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([userId, projectId])
+  @@index([userId])
+  @@map("project_stars")
 }
 
 model Members {
@@ -210,12 +225,14 @@ model Statuses {
   projectId BigInt  @map("project_id")
   name      String  @db.VarChar(255)
   bgColor   String? @map("bg_color") @db.VarChar(50)
+  position  Int     @default(0)
 
   project Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
   tasks   Tasks[]
 
   @@unique([projectId, name], map: "statuses_project_id_name_key")
   @@index([projectId])
+  @@index([projectId, position])
   @@map("statuses")
 }
 

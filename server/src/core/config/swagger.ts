@@ -78,14 +78,31 @@ export const setupSwagger = (app: Express) => {
         customCss: `
             .swagger-ui .topbar { display: none }
             .swagger-ui .info .title { color: #3b82f6; }
-            .swagger-ui .info .description { 
-                background: #f0f9ff; 
-                padding: 20px; 
+            .swagger-ui .info .description {
+                background: #f0f9ff;
+                padding: 20px;
                 border-radius: 8px;
                 border-left: 4px solid #3b82f6;
             }
+            .swagger-ui .info .description p,
+            .swagger-ui .info .description li,
+            .swagger-ui .info .description h1,
+            .swagger-ui .info .description h2,
+            .swagger-ui .info .description h3,
+            .swagger-ui .info .description strong {
+                color: #1e293b !important;
+            }
+            .swagger-ui .info .description code {
+                background: #1e293b;
+                color: #e2e8f0;
+                padding: 8px 12px;
+                border-radius: 4px;
+                display: block;
+                font-size: 13px;
+            }
         `,
         customSiteTitle: "Project Management API Docs",
+        customfavIcon: "/assets/favicon.ico",
     };
     
     router.use(swaggerUi.serve);

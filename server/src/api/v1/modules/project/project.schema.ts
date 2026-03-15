@@ -21,14 +21,12 @@ export const getProjectsSchema = z.object({
         ownerSearchField: z.enum(['fullname', 'phone', 'email']).optional(),
         sortBy: z.enum(['id', 'code', 'name']).optional(),
         sortOrder: z.enum(['asc', 'desc']).optional(),
-    }).passthrough().optional().default({}),
-})
+    }).optional().default({}),
+});
 
 export const getProjectDetailSchema = z.object({
-    body: z.object({}).optional(),
     params: projectIdParam,
-    query: z.object({}).optional(),
-})
+});
 
 export const createProjectSchema = z.object({
     body: z.object({
@@ -40,7 +38,7 @@ export const createProjectSchema = z.object({
         description: z.string().optional(),
         bgColor: z.string().optional(),
     }),
-})
+});
 
 export const updateProjectSchema = z.object({
     params: projectIdParam,
@@ -50,8 +48,8 @@ export const updateProjectSchema = z.object({
         bgColor: z.string().optional(),
         status: z.enum([ProjectStatus.ACTIVE, ProjectStatus.ARCHIVED]).optional(),
     }).optional(),
-})
+});
 
-export const archiveProjectSchema = z.object({
-    params: projectIdParam,
-})
+export const archiveProjectSchema = z.object({ params: projectIdParam });
+
+export const starProjectSchema = z.object({ params: projectIdParam });

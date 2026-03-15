@@ -18,6 +18,7 @@ import v1Routes from "./api/v1/routes/index";
 
 const app = express();
 app.use(express.json());
+app.use("/assets", express.static("src/assets"));
 app.use(helmetConfig);
 app.use(crossOriginConfig);
 app.use(morganConfig);

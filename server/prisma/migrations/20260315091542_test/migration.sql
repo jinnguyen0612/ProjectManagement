@@ -42,6 +42,15 @@ CREATE TABLE "permissions" (
 );
 
 -- CreateTable
+CREATE TABLE "project_permissions" (
+    "id" BIGSERIAL NOT NULL,
+    "key" VARCHAR(255) NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+
+    CONSTRAINT "project_permissions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "users_roles" (
     "user_id" BIGINT NOT NULL,
     "role_id" BIGINT NOT NULL,
@@ -82,6 +91,15 @@ CREATE TABLE "projects" (
 );
 
 -- CreateTable
+CREATE TABLE "project_stars" (
+    "user_id" BIGINT NOT NULL,
+    "project_id" BIGINT NOT NULL,
+    "created_at" TIMESTAMP(0) NOT NULL,
+
+    CONSTRAINT "project_stars_pkey" PRIMARY KEY ("user_id","project_id")
+);
+
+-- CreateTable
 CREATE TABLE "members" (
     "id" BIGSERIAL NOT NULL,
     "user_id" BIGINT NOT NULL,
@@ -96,10 +114,18 @@ CREATE TABLE "members" (
 -- CreateTable
 CREATE TABLE "members_permissions" (
     "member_id" BIGINT NOT NULL,
-    "permission_id" BIGINT NOT NULL,
+    "project_permission_id" BIGINT NOT NULL,
     "is_deny" BOOLEAN NOT NULL DEFAULT false,
 
-    CONSTRAINT "members_permissions_pkey" PRIMARY KEY ("member_id","permission_id")
+    CONSTRAINT "members_permissions_pkey" PRIMARY KEY ("member_id","project_permission_id")
+);
+
+-- CreateTable
+CREATE TABLE "member_roles_permissions" (
+    "role" "member_role" NOT NULL,
+    "project_permission_id" BIGINT NOT NULL,
+
+    CONSTRAINT "member_roles_permissions_pkey" PRIMARY KEY ("role","project_permission_id")
 );
 
 -- CreateTable
@@ -108,6 +134,7 @@ CREATE TABLE "statuses" (
     "project_id" BIGINT NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "bg_color" VARCHAR(50),
+    "position" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "statuses_pkey" PRIMARY KEY ("id")
 );
@@ -228,6 +255,9 @@ CREATE UNIQUE INDEX "roles_name_key" ON "roles"("name");
 CREATE UNIQUE INDEX "permissions_key_key" ON "permissions"("key");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "project_permissions_key_key" ON "project_permissions"("key");
+
+-- CreateIndex
 CREATE INDEX "users_roles_role_id_idx" ON "users_roles"("role_id");
 
 -- CreateIndex
@@ -246,6 +276,9 @@ CREATE INDEX "projects_owner_id_idx" ON "projects"("owner_id");
 CREATE INDEX "projects_status_idx" ON "projects"("status");
 
 -- CreateIndex
+CREATE INDEX "project_stars_user_id_idx" ON "project_stars"("user_id");
+
+-- CreateIndex
 CREATE INDEX "members_user_id_idx" ON "members"("user_id");
 
 -- CreateIndex
@@ -258,10 +291,16 @@ CREATE INDEX "members_role_idx" ON "members"("role");
 CREATE UNIQUE INDEX "members_project_id_user_id_key" ON "members"("project_id", "user_id");
 
 -- CreateIndex
-CREATE INDEX "members_permissions_permission_id_idx" ON "members_permissions"("permission_id");
+CREATE INDEX "members_permissions_project_permission_id_idx" ON "members_permissions"("project_permission_id");
+
+-- CreateIndex
+CREATE INDEX "member_roles_permissions_project_permission_id_idx" ON "member_roles_permissions"("project_permission_id");
 
 -- CreateIndex
 CREATE INDEX "statuses_project_id_idx" ON "statuses"("project_id");
+
+-- CreateIndex
+CREATE INDEX "statuses_project_id_position_idx" ON "statuses"("project_id", "position");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "statuses_project_id_name_key" ON "statuses"("project_id", "name");
@@ -351,6 +390,12 @@ ALTER TABLE "users_permissions" ADD CONSTRAINT "users_permissions_permission_id_
 ALTER TABLE "projects" ADD CONSTRAINT "projects_owner_id_fkey" FOREIGN KEY ("owner_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "project_stars" ADD CONSTRAINT "project_stars_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "project_stars" ADD CONSTRAINT "project_stars_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "members" ADD CONSTRAINT "members_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -363,7 +408,10 @@ ALTER TABLE "members" ADD CONSTRAINT "members_add_by_fkey" FOREIGN KEY ("add_by"
 ALTER TABLE "members_permissions" ADD CONSTRAINT "members_permissions_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "members"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "members_permissions" ADD CONSTRAINT "members_permissions_permission_id_fkey" FOREIGN KEY ("permission_id") REFERENCES "permissions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "members_permissions" ADD CONSTRAINT "members_permissions_project_permission_id_fkey" FOREIGN KEY ("project_permission_id") REFERENCES "project_permissions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "member_roles_permissions" ADD CONSTRAINT "member_roles_permissions_project_permission_id_fkey" FOREIGN KEY ("project_permission_id") REFERENCES "project_permissions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "statuses" ADD CONSTRAINT "statuses_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;

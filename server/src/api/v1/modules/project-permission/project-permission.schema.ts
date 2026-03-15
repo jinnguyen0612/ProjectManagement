@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const idParam = z.object({
+const projectPermissionIdParam = z.object({
     id: z.string()
         .regex(/^\d+$/, "Invalid ID")
         .transform((val) => BigInt(val))
@@ -17,9 +17,7 @@ export const getProjectPermissionsSchema = z.object({
     }).optional().default({}),
 });
 
-export const getProjectPermissionDetailSchema = z.object({
-    params: idParam,
-});
+export const getProjectPermissionDetailSchema = z.object({ params: projectPermissionIdParam });
 
 export const createProjectPermissionSchema = z.object({
     body: z.object({
@@ -29,13 +27,11 @@ export const createProjectPermissionSchema = z.object({
 });
 
 export const updateProjectPermissionSchema = z.object({
-    params: idParam,
+    params: projectPermissionIdParam,
     body: z.object({
         key: z.string().min(1).optional(),
         name: z.string().min(1).optional(),
     }),
 });
 
-export const deleteProjectPermissionSchema = z.object({
-    params: idParam,
-});
+export const deleteProjectPermissionSchema = z.object({ params: projectPermissionIdParam });

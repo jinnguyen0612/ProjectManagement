@@ -1,42 +1,29 @@
-import { permission } from "node:process";
-import { email, z } from "zod";
+import { z } from "zod";
 import { UserStatus } from "../../../../core/enums/status";
 
+const userIdParam = z.object({
+    id: z.string()
+        .regex(/^\d+$/, "Invalid user ID")
+        .transform((val) => BigInt(val))
+        .refine((v) => v > 0n, "Invalid user ID"),
+});
+
 export const getUsersSchema = z.object({
-    body: z.object({}).optional(),
-    params: z.object({}).optional(),
     query: z.object({
-        // Pagination
         page: z.string().optional(),
         limit: z.string().optional(),
-
-        // Search
         search: z.string().optional(),
         searchField: z.enum(['email', 'fullname', 'phone']).optional(),
-
-        // Filters cơ bản
         status: z.enum(['active', 'inactive', 'blocked']).optional(),
-
-        // Filters với operators (multiple options)
-        status_in: z.string().optional(),      // status=active,inactive
-
-        // Sort
+        status_in: z.string().optional(),
         sortBy: z.enum(['email', 'fullname', 'createdAt', 'updatedAt']).optional(),
         sortOrder: z.enum(['asc', 'desc']).optional(),
-    }).passthrough().optional().default({}),
+    }).optional().default({}),
 });
 
 export const getUserDetailSchema = z.object({
-    body: z.object({}).optional(),
-    params: z.object({
-        id: z
-            .string()
-            .regex(/^\d+$/, "Invalid user ID")
-            .transform((val) => BigInt(val))
-            .refine((v) => v > 0n, "Invalid user ID"),
-    }),
-    query: z.object({}).optional()
-})
+    params: userIdParam,
+});
 
 export const createUserSchema = z.object({
     body: z.object({
@@ -56,10 +43,11 @@ export const createUserSchema = z.object({
     }).refine((data) => data.password === data.confirmPassword, {
         message: "Passwords do not match",
         path: ["confirmPassword"],
-    })
-})
+    }),
+});
 
 export const updateUserSchema = z.object({
+    params: userIdParam,
     body: z.object({
         password: z.string().min(6, "Password must be at least 6 characters").optional(),
         confirmPassword: z.string().min(6, "Confirm Password must be at least 6 characters").optional(),
@@ -75,48 +63,23 @@ export const updateUserSchema = z.object({
             }
             return true;
         },
-        {
-            message: "Passwords do not match",
-            path: ["confirmPassword"],
-        }
+        { message: "Passwords do not match", path: ["confirmPassword"] }
     ).optional(),
-    params: z.object({
-        id: z
-            .string()
-            .regex(/^\d+$/, "Invalid user ID")
-            .transform((val) => BigInt(val))
-            .refine((v) => v > 0n, "Invalid user ID"),
-    }),
-})
+});
 
-export const blockUserSchema = z.object({
-    params: z.object
-    ({
-        id: z
-            .string()
-            .regex(/^\d+$/, "Invalid user ID")
-            .transform((val) => BigInt(val))
-            .refine((v) => v > 0n, "Invalid user ID"),
-    }),
-})
+export const blockUserSchema = z.object({ params: userIdParam });
 
 export const updateUserPermissionSchema = z.object({
+    params: userIdParam,
     body: z.object({
         permissions: z.array(
             z.string()
                 .regex(/^\d+$/, "Invalid permission ID")
                 .transform((val) => BigInt(val))
                 .refine((v) => v > 0n, "Invalid permission ID")
-        ).min(0, "Permissions array is required"),
+        ).min(0),
     }),
-    params: z.object({
-        id: z
-            .string()
-            .regex(/^\d+$/, "Invalid user ID")
-            .transform((val) => BigInt(val))
-            .refine((v) => v > 0n, "Invalid user ID"),
-    }),
-})
+});
 
 // Types
 export type GetUsersQuery = z.infer<typeof getUsersSchema>["query"];

@@ -50,3 +50,12 @@ export const generateClientKey = (): string => {
     
     return `${prefix}${urlSafe}`;
 };
+
+export const generateTaskCode = (length: number): string => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = 'TASK-';
+    for (let i = 0; i < length; i++) {
+        code += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return code;
+};

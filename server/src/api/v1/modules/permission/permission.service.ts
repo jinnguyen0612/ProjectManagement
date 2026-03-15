@@ -1,6 +1,6 @@
-import prisma from "../../../../infrastructure/libs/prisma";
 import { buildWhereCondition } from "../../../../shared/pagination";
 import { AppError } from "../../../../core/errors/app-error";
+import { PermissionFacade } from "../../../../infrastructure/facades/permission.facade";
 
 export class PermissionService {
     static async getPermissions(
@@ -12,125 +12,61 @@ export class PermissionService {
         sortBy: string = 'id',
         sortOrder: 'asc' | 'desc' = 'desc'
     ) {
-        // Whitelist searchable fields
         const SEARCHABLE_FIELDS = ['name', 'key'];
-
-        // Base condition
         let whereCondition: any = {};
 
-        // Add search
         if (search) {
-            if (searchField && SEARCHABLE_FIELDS.includes(searchField)) {
-                // Search specific field
-                whereCondition[searchField] = {
-                    contains: search,
-                    mode: 'insensitive',
-                };
-            } else {
-                // Search all fields
-                whereCondition.OR = SEARCHABLE_FIELDS.map(field => ({
-                    [field]: {
-                        contains: search,
-                        mode: 'insensitive',
-                    }
-                }));
-            }
+            whereCondition = searchField && SEARCHABLE_FIELDS.includes(searchField)
+                ? { [searchField]: { contains: search, mode: 'insensitive' } }
+                : { OR: SEARCHABLE_FIELDS.map(f => ({ [f]: { contains: search, mode: 'insensitive' } })) };
         }
 
-        // Add filters (operators tự động xử lý)
-        whereCondition = buildWhereCondition(whereCondition, filters, {
-            status: 'exact',
-        });
-
-        // Build orderBy
-        const orderBy: any = {
-            [sortBy]: sortOrder,
-        };
+        whereCondition = buildWhereCondition(whereCondition, filters, { status: 'exact' });
 
         const [permissions, total] = await Promise.all([
-            prisma.permissions.findMany({
-                where: whereCondition,
-                select: {
-                    id: true,
-                    name: true,
-                    key: true,
-                },
-                orderBy,
+            PermissionFacade.findPermissions(
+                whereCondition,
+                { id: true, name: true, key: true },
+                { [sortBy]: sortOrder },
                 skip,
-                take: limit,
-            }),
-            prisma.permissions.count({
-                where: whereCondition,
-            }),
+                limit
+            ),
+            PermissionFacade.countPermissions(whereCondition),
         ]);
 
         return { permissions, total };
     }
 
     static async getPermissionDetail(id: bigint) {
-        const permission = prisma.permissions.findFirst({
-            where: { id }
-        });
-        if(!permission){
-            throw new AppError('Permission not found', 404);
-        }
+        const permission = await PermissionFacade.findPermissionById(id);
+        if (!permission) throw new AppError('Permission not found', 404);
         return permission;
     }
 
-    static async createPermission(data: any){
+    static async createPermission(data: any) {
         const key = data.key.toLowerCase();
-        
-        const isExist = await prisma.permissions.findUnique({
-            where: { key }
-        });
-        
-        if(isExist) {
-            throw new AppError('Permission already exists', 409);
-        }
 
-        return prisma.permissions.create({
-            data: {
-                key,
-                name: data.name
-            }
-        });
+        const isExist = await PermissionFacade.findPermissionByKey(key);
+        if (isExist) throw new AppError('Permission already exists', 409);
+
+        return PermissionFacade.createPermission({ key, name: data.name });
     }
 
-    static async updatePermission(id: bigint, data: any){
+    static async updatePermission(id: bigint, data: any) {
+        const permission = await PermissionFacade.findPermissionById(id);
+        if (!permission) throw new AppError('Permission not found', 404);
+
         const updateData: any = {};
 
-        const permission = await prisma.permissions.findUnique({
-            where: { id }
-        });
-        
-        if(!permission) {
-            throw new AppError('Permission not found', 404);
-        }
-        
-        if(data.key){
+        if (data.key) {
             const key = data.key.toLowerCase();
-            
-            const isExist = await prisma.permissions.findFirst({
-                where: {
-                    key: key,
-                    id: { not: id }
-                }
-            });
-            
-            if(isExist) {
-                throw new AppError('Permission key already exists', 409);
-            }
-            
+            const isExist = await PermissionFacade.findPermissionByKeyExcluding(key, id);
+            if (isExist) throw new AppError('Permission key already exists', 409);
             updateData.key = key;
         }
-        
-        if(data.name){
-            updateData.name = data.name;
-        }
 
-        return prisma.permissions.update({
-            where: { id },
-            data: updateData
-        });
+        if (data.name) updateData.name = data.name;
+
+        return PermissionFacade.updatePermission(id, updateData);
     }
 }
