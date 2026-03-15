@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "async_hooks";
-import { AccessTokenPayload } from "../core/types/jwt.type";
+import { AccessTokenPayload } from "../core/types/jwt";
 
 export type UserContext = AccessTokenPayload;
 

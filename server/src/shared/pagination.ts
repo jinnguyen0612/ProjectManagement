@@ -1,4 +1,4 @@
-import { PaginationResult, PaginationMeta } from "../core/types/pagination.type";
+import { PaginationResult, PaginationMeta } from "../core/types/pagination";
 
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_LIMIT = 10;

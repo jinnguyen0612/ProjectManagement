@@ -1,11 +1,9 @@
 import { Router } from "express";
 import { validate } from "../middlewares/validate.middleware";
-import { authLimiter } from "../../../core/config/rateLimiter";
 import { loginSchema, refreshTokenSchema, registerSchema, resendOTPSchema, verifyRegisterSchema } from "../modules/auth/auth.schema";
 import { login, refreshToken, register, resendOTP, verifyRegister } from "../modules/auth/auth.controller";
 
 const router = Router();
-router.use(authLimiter);
 
 /**
  * @swagger

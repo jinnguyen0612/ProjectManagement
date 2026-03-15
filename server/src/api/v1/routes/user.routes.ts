@@ -3,7 +3,7 @@ import { authenticate, authorize } from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validate.middleware";
 import { blockUserSchema, createUserSchema, getUserDetailSchema, getUsersSchema, updateUserPermissionSchema, updateUserSchema } from "../modules/user/user.schema";
 import { blockUser, createUser, getUserDetail, getUsers, unblockUser, updateUser, updateUserPermission } from "../modules/user/user.controller";
-import { UserRole } from "../../../core/enums/Role";
+import { UserRole } from "../../../core/enums/role";
 
 const router = Router();
 

@@ -28,9 +28,11 @@ async function main() {
     const orderedFileNames = [
         "roles.json",
         "permissions.json",
+        "projectPermissions.json",
         "users.json",
         "usersRoles.json",
         "rolesPermissions.json",
+        "memberRolesPermissions.json",
         "appUsingAPI.json",
         "projects.json",
         "members.json",

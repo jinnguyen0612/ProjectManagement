@@ -80,11 +80,21 @@ model Permissions {
   key  String @unique @db.VarChar(255)
   name String @db.VarChar(255)
 
-  rolesPermissions   RolesPermissions[]
-  usersPermissions   UsersPermissions[]
-  membersPermissions MembersPermissions[]
+  rolesPermissions RolesPermissions[]
+  usersPermissions UsersPermissions[]
 
   @@map("permissions")
+}
+
+model ProjectPermissions {
+  id   BigInt @id @default(autoincrement())
+  key  String @unique @db.VarChar(255)
+  name String @db.VarChar(255)
+
+  membersPermissions     MembersPermissions[]
+  memberRolesPermissions MemberRolesPermissions[]
+
+  @@map("project_permissions")
 }
 
 //
@@ -172,16 +182,27 @@ model Members {
 }
 
 model MembersPermissions {
-  memberId     BigInt  @map("member_id")
-  permissionId BigInt  @map("permission_id")
-  isDeny       Boolean @default(false) @map("is_deny")
+  memberId            BigInt  @map("member_id")
+  projectPermissionId BigInt  @map("project_permission_id")
+  isDeny              Boolean @default(false) @map("is_deny")
 
-  member     Members     @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  permission Permissions @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  member            Members            @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  projectPermission ProjectPermissions @relation(fields: [projectPermissionId], references: [id], onDelete: Cascade)
 
-  @@id([memberId, permissionId])
-  @@index([permissionId])
+  @@id([memberId, projectPermissionId])
+  @@index([projectPermissionId])
   @@map("members_permissions")
+}
+
+model MemberRolesPermissions {
+  role                MemberRole @map("role")
+  projectPermissionId BigInt     @map("project_permission_id")
+
+  projectPermission ProjectPermissions @relation(fields: [projectPermissionId], references: [id], onDelete: Cascade)
+
+  @@id([role, projectPermissionId])
+  @@index([projectPermissionId])
+  @@map("member_roles_permissions")
 }
 
 model Statuses {

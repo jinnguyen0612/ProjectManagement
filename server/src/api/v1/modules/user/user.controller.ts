@@ -66,7 +66,6 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
         body: req.body
     });
     const id = params.id;
-    console.log('id', id);
     const user = await UserService.updateUser(id, body);
     
     return sendResponse(res, 200, {

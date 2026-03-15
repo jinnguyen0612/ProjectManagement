@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyAccessToken } from "../../../infrastructure/libs/jwt";
-import { AccessTokenPayload } from "../../../core/types/jwt.type";
+import { AccessTokenPayload } from "../../../core/types/jwt";
 import { runWithUser } from "../../../hooks/useUserContext";
 import prisma from "../../../infrastructure/libs/prisma";
 

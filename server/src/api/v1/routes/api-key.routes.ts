@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticate, authorize } from "../middlewares/auth.middleware";
-import { UserRole } from "../../../core/enums/Role";
+import { UserRole } from "../../../core/enums/role";
 import { validate } from "../middlewares/validate.middleware";
 import { createClientKeySchema, listClientKeysQuerySchema, deleteClientKeySchema } from "../modules/api-key/api-key.schema";
 import { createClientKey, deleteClientKey, listClientKeys } from "../modules/api-key/api-key.controller";

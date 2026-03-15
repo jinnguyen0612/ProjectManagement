@@ -1,4 +1,4 @@
-import { Permissions } from "./permissions.type";
+import { Permissions } from "./permissions";
 
 export interface AccessTokenPayload {
     userId: number;

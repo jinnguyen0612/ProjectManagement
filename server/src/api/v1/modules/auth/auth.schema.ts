@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { OtpType } from "../../../../core/enums/OtpType";
+import { OtpType } from "../../../../core/enums/otp-type";
 
 export const registerSchema = z.object({
   body: z.object({

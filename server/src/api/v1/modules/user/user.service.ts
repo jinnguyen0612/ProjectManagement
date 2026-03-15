@@ -1,11 +1,11 @@
 import { currentUserWith } from './../../../../hooks/useAuth';
 import prisma from "../../../../infrastructure/libs/prisma";
 import { buildWhereCondition } from "../../../../shared/pagination";
-import { UserRole } from '../../../../core/enums/Role';
+import { UserRole } from '../../../../core/enums/role';
 import { Prisma } from '@prisma/client';
-import { AppError } from '../../../../core/errors/AppError';
+import { AppError } from '../../../../core/errors/app-error';
 import { hashPassword } from '../../../../infrastructure/libs/bcrypt';
-import { UserStatus } from '../../../../core/types/User/user-status';
+import { UserStatus } from '../../../../core/enums/status';
 import { generateOTP } from '../../../../core/utils/generate-code';
 
 // Type for user with roles
@@ -141,10 +141,25 @@ export class UserService {
             status: true,
         };
 
-        return prisma.users.findFirst({
+        const target = await prisma.users.findFirst({
             where: { id },
-            select: selectCondition,
+            select: { ...selectCondition, status: true },
         });
+
+        if (!target) throw new AppError("User not found", 404);
+
+        // Non-admin không xem được user bị blocked
+        if (!isAdmin && target.status === UserStatus.BLOCKED) {
+            throw new AppError("User not found", 404);
+        }
+
+        // Ẩn status khỏi response nếu không phải admin (đã lấy để check)
+        if (!isAdmin) {
+            const { status, ...rest } = target as any;
+            return rest;
+        }
+
+        return target;
     }
 
     static async createUser(data: any) {

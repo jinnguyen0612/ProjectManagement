@@ -1,14 +1,14 @@
 import prisma from "../../../../infrastructure/libs/prisma";
-import { AppError } from "../../../../core/errors/AppError";
+import { AppError } from "../../../../core/errors/app-error";
 import { hashPassword, comparePassword, compareToken } from "../../../../infrastructure/libs/bcrypt";
 import { decodeToken, signAccessToken, signRefreshToken, storeRefreshToken } from "../../../../infrastructure/libs/jwt";
 import { RegisterInput, LoginInput, VerifyRegisterInput, ResendOTPIput, RefreshTokenInput } from "./auth.schema";
-import { UserStatus } from "../../../../core/types/User/user-status";
+import { UserStatus } from "../../../../core/enums/status";
 import { sendWelcomeEmail } from "../../../../infrastructure/services/email.service";
 import { generateCode, generateOTP } from "../../../../core/utils/generate-code";
-import { OtpType } from "../../../../core/enums/OtpType";
+import { OtpType } from "../../../../core/enums/otp-type";
 import { currentUserId } from "../../../../hooks/useAuth";
-import { UserRole } from "../../../../core/enums/Role";
+import { UserRole } from "../../../../core/enums/role";
 
 export class AuthService {
     static async register(data: RegisterInput) {

@@ -4,17 +4,26 @@ import uploadRoutes from "./upload.routes";
 import profileRoutes from "./profile.routes";
 import apiKeyRoutes from "./api-key.routes";
 import userRoutes from "./user.routes"
+import roleRoutes from "./role.routes"
+import permissionRoutes from "./permission.routes"
+import projectRoutes from "./project.routes"
+import projectPermissionRoutes from "./project-permission.routes"
 import { validateApiKey } from "../middlewares/apiKey.middleware";
+import { authLimiter } from "../../../core/config/rate-limiter";
 
 const router = Router();
 
-// Áp dụng middleware API key cho toàn bộ routes
 router.use(validateApiKey);
+router.use(authLimiter);
 
 router.use("/auth", authRoutes);
 router.use("/api-key", apiKeyRoutes);
 router.use("/upload", uploadRoutes);
 router.use("/profile", profileRoutes);
 router.use("/user", userRoutes)
+router.use("/role", roleRoutes)
+router.use("/permission", permissionRoutes)
+router.use("/project", projectRoutes)
+router.use("/project-permission", projectPermissionRoutes)
 
 export default router;

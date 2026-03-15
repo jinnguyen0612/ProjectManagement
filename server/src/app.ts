@@ -3,9 +3,9 @@ import { setupSwagger } from "./core/config/swagger";
 import { helmetConfig, crossOriginConfig } from "./core/config/helmet";
 import { corsConfig } from "./core/config/cors";
 import { morganConfig } from "./core/config/morgan";
-import { bodyParserJson, bodyParserUrlEncoded } from "./core/config/bodyParser";
-import { globalLimiter } from "./core/config/rateLimiter";
-import { errorHandler } from "./core/errors/errorHandler";
+import { bodyParserJson, bodyParserUrlEncoded } from "./core/config/body-parser";
+import { globalLimiter } from "./core/config/rate-limiter";
+import { errorHandler } from "./core/errors/error-handler";
 import { notFoundHandler } from "./api/v1/middlewares/notFound.middleware";
 
 // IMPORT ROUTES

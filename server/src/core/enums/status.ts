@@ -3,3 +3,8 @@ export enum UserStatus {
     INACTIVE = "inactive",
     BLOCKED = "blocked",
 }
+
+export enum ProjectStatus {
+    ACTIVE = 'active',
+    ARCHIVED = 'archived',
+}

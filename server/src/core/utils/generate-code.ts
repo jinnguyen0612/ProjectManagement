@@ -8,7 +8,7 @@ export const generateOTP = (length = 6): string => {
     return randomString;
 };
 
-export const generateCode = (length: number): string => {
+export const generateProjectCode = (length: number): string => {
     const characters = '0123456789';
     let randomString = 'PRJ-';
     for (let i = 0; i < length; i++) {

@@ -1,6 +1,6 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 import { env } from "../../core/config/env";
-import { AccessTokenPayload, RefreshTokenPayload } from "../../core/types/jwt.type";
+import { AccessTokenPayload, RefreshTokenPayload } from "../../core/types/jwt";
 import prisma from "./prisma";
 import { hashToken } from "./bcrypt";
 

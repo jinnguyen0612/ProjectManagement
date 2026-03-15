@@ -1,7 +1,9 @@
 import { getUserContext } from "./useUserContext";
-import { AppError } from "../core/errors/AppError";
+import { AppError } from "../core/errors/app-error";
 import prisma from "../infrastructure/libs/prisma";
 import { Prisma } from "@prisma/client";
+import { UserRole } from "../core/enums/role";
+import { UserWithRoles } from "../core/types/user-with-role";
 
 /**
  * Lấy ID của người dùng đang đăng nhập từ context.
@@ -87,4 +89,25 @@ export const currentUserWithRelations = async () => {
             },
         },
     });
+};
+
+/**
+ * Kiểm tra user hiện tại có phải admin không
+ */
+export const isCurrentUserAdmin = async (): Promise<boolean> => {
+    const user = await currentUserWith({
+        usersRoles: { include: { role: true } }
+    }) as UserWithRoles;
+    return user.usersRoles?.some(ur => ur.role.name === UserRole.ADMIN) ?? false;
+};
+
+/**
+ * Lấy user hiện tại kèm thông tin isAdmin
+ */
+export const currentUserWithRole = async () => {
+    const user = await currentUserWith({
+        usersRoles: { include: { role: true } }
+    }) as UserWithRoles;
+    const isAdmin = user.usersRoles?.some(ur => ur.role.name === UserRole.ADMIN) ?? false;
+    return { user, isAdmin };
 };

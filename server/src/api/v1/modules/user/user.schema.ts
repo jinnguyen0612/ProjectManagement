@@ -1,6 +1,6 @@
 import { permission } from "node:process";
 import { email, z } from "zod";
-import { UserStatus } from "../../../../core/types/User/user-status";
+import { UserStatus } from "../../../../core/enums/status";
 
 export const getUsersSchema = z.object({
     body: z.object({}).optional(),

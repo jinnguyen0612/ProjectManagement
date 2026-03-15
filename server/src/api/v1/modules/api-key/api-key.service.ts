@@ -1,6 +1,6 @@
 import { currentUser } from './../../../../hooks/useAuth';
 import prisma from "../../../../infrastructure/libs/prisma";
-import { AppError } from "../../../../core/errors/AppError";
+import { AppError } from "../../../../core/errors/app-error";
 import { createClientKeyInput } from "./api-key.schema";
 import { generateClientKey } from "../../../../core/utils/generate-code";
 

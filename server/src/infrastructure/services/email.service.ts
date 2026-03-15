@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import { env } from "../../core/config/env";
 import { logError, logInfo } from "../../shared/logger";
-import { SendEmailOptions } from "../../core/types/mails.type";
+import { SendEmailOptions } from "../../core/types/mails";
 import fs from "fs";
 import path from "path";
 
