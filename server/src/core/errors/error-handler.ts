@@ -7,9 +7,14 @@ export const errorHandler = (
     res: Response,
     next: NextFunction
 ) => {
-    logError(err.stack || err.message, req);
+    const statusCode = err.statusCode || 500;
 
-    res.status(err.statusCode || 500).json({
+    // Chỉ log 5xx errors — 4xx là lỗi có chủ đích, không cần log
+    if (statusCode >= 500) {
+        logError(err.stack || err.message, req);
+    }
+
+    res.status(statusCode).json({
         success: false,
         message: err.message || "Internal Server Error",
     });

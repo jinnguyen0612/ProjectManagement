@@ -69,7 +69,7 @@ export const authenticate = (
  */
 
 // Cache để tránh query database nhiều lần cho cùng 1 user
-const authCache = new Map<number, {
+export const authCache = new Map<number, {
     userRoles: Set<string>;
     allPermissions: Set<string>;
     deniedPermissions: Set<string>;
