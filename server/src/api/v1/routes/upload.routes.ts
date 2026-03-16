@@ -6,7 +6,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/upload/image:
+ * /upload/image:
  *   post:
  *     tags:
  *       - Upload
@@ -31,7 +31,7 @@ router.post("/image", uploadSingleImage, uploadImage);
 
 /**
  * @swagger
- * /api/v1/upload/images:
+ * /upload/images:
  *   post:
  *     tags:
  *       - Upload
@@ -58,7 +58,7 @@ router.post("/images", uploadMultipleImages, uploadImages);
 
 /**
  * @swagger
- * /api/v1/upload/video:
+ * /upload/video:
  *   post:
  *     tags:
  *       - Upload
@@ -82,3 +82,4 @@ router.post("/images", uploadMultipleImages, uploadImages);
 router.post("/video", uploadSingleVideo, uploadVideo);
 
 export default router;
+

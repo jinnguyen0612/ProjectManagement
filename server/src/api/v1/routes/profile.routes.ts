@@ -9,7 +9,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/profile:
+ * /profile:
  *   get:
  *     tags:
  *       - Profile
@@ -35,7 +35,7 @@ router.get("/", authenticate, getUserProfile);
 
 /**
  * @swagger
- * /api/v1/profile/update:
+ * /profile/update:
  *   post:
  *     tags:
  *       - Profile
@@ -82,7 +82,7 @@ router.post("/update", authenticate, validate(updateProfileSchema), updateProfil
 
 /**
  * @swagger
- * /api/v1/profile/change-password:
+ * /profile/change-password:
  *   post:
  *     tags:
  *       - Profile
@@ -125,3 +125,4 @@ router.post("/update", authenticate, validate(updateProfileSchema), updateProfil
 router.post("/change-password", authenticate, validate(changePasswordSchema), changePassword);
 
 export default router;
+
