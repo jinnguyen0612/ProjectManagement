@@ -7,7 +7,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/auth/login:
+ * /auth/login:
  *   post:
  *     tags:
  *       - Auth
@@ -59,7 +59,7 @@ router.post("/login", validate(loginSchema), login);
 
 /**
  * @swagger
- * /api/v1/auth/register:
+ * /auth/register:
  *   post:
  *     tags:
  *       - Auth
@@ -109,7 +109,7 @@ router.post("/register", validate(registerSchema), register);
 
 /**
  * @swagger
- * /api/v1/auth/resend-otp:
+ * /auth/resend-otp:
  *   post:
  *     tags:
  *       - Auth
@@ -155,7 +155,7 @@ router.post("/resend-otp", validate(resendOTPSchema), resendOTP);
 
 /**
  * @swagger
- * /api/v1/auth/verify-register:
+ * /auth/verify-register:
  *   post:
  *     tags:
  *       - Auth
@@ -200,7 +200,7 @@ router.post("/verify-register", validate(verifyRegisterSchema), verifyRegister);
 
 /**
  * @swagger
- * /api/v1/auth/refresh-token:
+ * /auth/refresh-token:
  *   post:
  *     tags:
  *       - Auth
@@ -248,3 +248,4 @@ router.post("/verify-register", validate(verifyRegisterSchema), verifyRegister);
 router.post("/refresh-token", validate(refreshTokenSchema), refreshToken);
 
 export default router;
+

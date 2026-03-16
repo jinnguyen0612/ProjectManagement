@@ -67,32 +67,6 @@ router.get("/", authenticate, validate(getTasksSchema), getTasks);
 
 /**
  * @swagger
- * /project/{id}/tasks/{taskId}:
- *   get:
- *     summary: Get task detail
- *     tags: [Tasks]
- *     security:
- *       - bearerAuth: []
- *       - apiKey: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema: { type: integer }
- *       - in: path
- *         name: taskId
- *         required: true
- *         schema: { type: integer }
- *     responses:
- *       200:
- *         description: Task retrieved successfully
- *       404:
- *         description: Task not found
- */
-router.get("/:taskId", authenticate, validate(getTaskDetailSchema), getTaskDetail);
-
-/**
- * @swagger
  * /project/{id}/tasks/create:
  *   post:
  *     summary: Create a new task
@@ -133,6 +107,32 @@ router.get("/:taskId", authenticate, validate(getTaskDetailSchema), getTaskDetai
  *         description: Task created successfully
  */
 router.post("/create", authenticate, validate(createTaskSchema), createTask);
+
+/**
+ * @swagger
+ * /project/{id}/tasks/{taskId}:
+ *   get:
+ *     summary: Get task detail
+ *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
+ *       - apiKey: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *       - in: path
+ *         name: taskId
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: Task retrieved successfully
+ *       404:
+ *         description: Task not found
+ */
+router.get("/:taskId", authenticate, validate(getTaskDetailSchema), getTaskDetail);
 
 /**
  * @swagger

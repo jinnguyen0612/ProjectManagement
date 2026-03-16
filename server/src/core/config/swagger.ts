@@ -56,7 +56,7 @@ Click the "Authorize" button and paste the API key above.
         },
         servers: [
             {
-                url: "http://localhost:3000",
+                url: "http://localhost:3000/api/v1",
                 description: "Development server",
             },
         ],
