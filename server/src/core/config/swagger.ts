@@ -98,6 +98,23 @@ export const setupSwagger = (app: Express) => {
                         } catch(e) { return {}; }
                     }
 
+                    function applyAccessToken(accessToken) {
+                        window.ui.authActions.authorize({
+                            bearerAuth: {
+                                name: 'bearerAuth',
+                                schema: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+                                value: accessToken,
+                            }
+                        });
+                    }
+
+                    // Restore token from localStorage on page load
+                    const saved = getTokens();
+                    if (saved.accessToken) {
+                        applyAccessToken(saved.accessToken);
+                        console.log('[Swagger] Restored access token from localStorage');
+                    }
+
                     const configs = window.ui.getConfigs();
                     const originalResponseInterceptor = configs.responseInterceptor;
 
@@ -128,9 +145,10 @@ export const setupSwagger = (app: Express) => {
                             if ((isLogin || isRefresh) && response.status === 200 && response.body && response.body.data) {
                                 const { accessToken, refreshToken } = response.body.data;
                                 if (accessToken) {
-                                    window.ui.preauthorizeApiKey('bearerAuth', accessToken);
-                                    saveTokens(accessToken, refreshToken);
-                                    console.log('[Swagger] Token auto-injected from ' + (isLogin ? 'login' : 'refresh'));
+                                    applyAccessToken(accessToken);
+                                    saveTokens(accessToken, isLogin ? refreshToken : getTokens().refreshToken);
+                                    if (isRefresh && refreshToken) saveTokens(accessToken, refreshToken);
+                                    console.log('[Swagger] Token auto-injected from ' + (isRefresh ? 'refresh' : 'login/verify'));
                                 }
                             }
                         } catch(e) {}
