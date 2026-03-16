@@ -72,9 +72,73 @@ export const setupSwagger = (app: Express) => {
     // Swagger UI options
     const swaggerUiOptions = {
         swaggerOptions: {
-            persistAuthorization: true, // Lưu authorization khi refresh page
-            displayRequestDuration: true, // Hiển thị thời gian request
+            persistAuthorization: true,
+            displayRequestDuration: true,
         },
+        customJs: `
+            window.addEventListener('load', function() {
+                const waitForUi = setInterval(function() {
+                    if (!window.ui) return;
+                    clearInterval(waitForUi);
+
+                    const STORAGE_KEY = 'swagger_tokens';
+
+                    function saveTokens(accessToken, refreshToken) {
+                        try {
+                            const current = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                            if (accessToken) current.accessToken = accessToken;
+                            if (refreshToken) current.refreshToken = refreshToken;
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+                        } catch(e) {}
+                    }
+
+                    function getTokens() {
+                        try {
+                            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                        } catch(e) { return {}; }
+                    }
+
+                    const configs = window.ui.getConfigs();
+                    const originalResponseInterceptor = configs.responseInterceptor;
+
+                    // Request interceptor: auto-fill body for refresh-token endpoint
+                    configs.requestInterceptor = function(request) {
+                        try {
+                            if (request.url && request.url.includes('/auth/refresh-token')) {
+                                const tokens = getTokens();
+                                if (tokens.accessToken && tokens.refreshToken) {
+                                    const body = JSON.parse(request.body || '{}');
+                                    if (!body.accessToken) body.accessToken = tokens.accessToken;
+                                    if (!body.refreshToken) body.refreshToken = tokens.refreshToken;
+                                    request.body = JSON.stringify(body);
+                                    console.log('[Swagger] Auto-filled refresh-token body');
+                                }
+                            }
+                        } catch(e) {}
+                        return request;
+                    };
+
+                    // Response interceptor: auto-inject tokens from auth responses
+                    configs.responseInterceptor = function(response) {
+                        try {
+                            const url = response.url || '';
+                            const isLogin = url.includes('/auth/login') || url.includes('/auth/verify-register');
+                            const isRefresh = url.includes('/auth/refresh-token');
+
+                            if ((isLogin || isRefresh) && response.status === 200 && response.body && response.body.data) {
+                                const { accessToken, refreshToken } = response.body.data;
+                                if (accessToken) {
+                                    window.ui.preauthorizeApiKey('bearerAuth', accessToken);
+                                    saveTokens(accessToken, refreshToken);
+                                    console.log('[Swagger] Token auto-injected from ' + (isLogin ? 'login' : 'refresh'));
+                                }
+                            }
+                        } catch(e) {}
+                        return originalResponseInterceptor ? originalResponseInterceptor(response) : response;
+                    };
+                }, 200);
+            });
+        `,
         customCss: `
             .swagger-ui .topbar { display: none }
             .swagger-ui .info .title { color: #3b82f6; }
