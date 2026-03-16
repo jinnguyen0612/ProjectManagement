@@ -3,14 +3,12 @@ import { authenticate } from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validate.middleware";
 import {
     createStatusSchema,
-    deleteStatusSchema,
     getStatusesSchema,
     reorderStatusesSchema,
     updateStatusSchema,
 } from "../modules/status/status.schema";
 import {
     createStatus,
-    deleteStatus,
     getStatuses,
     reorderStatuses,
     updateStatus,
@@ -112,30 +110,6 @@ router.post("/create", authenticate, validate(createStatusSchema), createStatus)
  *         description: Status updated successfully
  */
 router.post("/update/:statusId", authenticate, validate(updateStatusSchema), updateStatus);
-
-/**
- * @swagger
- * /project/{id}/statuses/delete/{statusId}:
- *   post:
- *     summary: Delete a status
- *     tags: [Statuses]
- *     security:
- *       - bearerAuth: []
- *       - apiKey: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema: { type: integer }
- *       - in: path
- *         name: statusId
- *         required: true
- *         schema: { type: integer }
- *     responses:
- *       200:
- *         description: Status deleted successfully
- */
-router.post("/delete/:statusId", authenticate, validate(deleteStatusSchema), deleteStatus);
 
 /**
  * @swagger

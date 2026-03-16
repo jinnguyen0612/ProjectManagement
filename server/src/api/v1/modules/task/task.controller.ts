@@ -4,8 +4,9 @@ import { asyncHandler } from "../../../../shared/asyncHandler";
 import { TaskService } from "./task.service";
 import {
     assignMembersSchema,
+    completeTaskSchema,
+    changeTaskStatusSchema,
     createTaskSchema,
-    deleteTaskSchema,
     getTaskDetailSchema,
     getTasksSchema,
     updateTaskSchema,
@@ -35,14 +36,26 @@ export const updateTask = asyncHandler(async (req: Request, res: Response) => {
     return sendResponse(res, 200, { success: true, message: "Task updated successfully", data: task });
 });
 
-export const deleteTask = asyncHandler(async (req: Request, res: Response) => {
-    const { params } = deleteTaskSchema.parse({ params: req.params });
-    await TaskService.deleteTask(params.id, params.taskId);
-    return sendResponse(res, 200, { success: true, message: "Task deleted successfully", data: null });
-});
-
 export const assignMembers = asyncHandler(async (req: Request, res: Response) => {
     const { params, body } = assignMembersSchema.parse({ params: req.params, body: req.body });
     const task = await TaskService.assignMembers(params.id, params.taskId, body.memberIds);
     return sendResponse(res, 200, { success: true, message: "Members assigned successfully", data: task });
+});
+
+export const completeTask = asyncHandler(async (req: Request, res: Response) => {
+    const { params } = completeTaskSchema.parse({ params: req.params });
+    const task = await TaskService.completeTask(params.id, params.taskId);
+    return sendResponse(res, 200, { success: true, message: "Task marked as completed", data: task });
+});
+
+export const uncompleteTask = asyncHandler(async (req: Request, res: Response) => {
+    const { params } = completeTaskSchema.parse({ params: req.params });
+    const task = await TaskService.uncompleteTask(params.id, params.taskId);
+    return sendResponse(res, 200, { success: true, message: "Task completion reverted", data: task });
+});
+
+export const changeTaskStatus = asyncHandler(async (req: Request, res: Response) => {
+    const { params, body } = changeTaskStatusSchema.parse({ params: req.params, body: req.body });
+    const task = await TaskService.changeTaskStatus(params.id, params.taskId, body.statusId);
+    return sendResponse(res, 200, { success: true, message: "Task status changed successfully", data: task });
 });

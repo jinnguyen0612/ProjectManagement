@@ -3,6 +3,8 @@ import prisma from "../libs/prisma";
 const TASK_LIST_SELECT = {
     id: true,
     code: true,
+    name: true,
+    isCompleted: true,
     bgColor: true,
     position: true,
     dateStart: true,
@@ -28,6 +30,9 @@ const TASK_LIST_SELECT = {
 const TASK_DETAIL_SELECT = {
     id: true,
     code: true,
+    name: true,
+    description: true,
+    isCompleted: true,
     bgColor: true,
     position: true,
     dateStart: true,
@@ -86,6 +91,8 @@ export class TaskFacade {
 
     static create(data: {
         code: string;
+        name: string;
+        description?: string | null;
         projectId: bigint;
         statusId: bigint;
         bgColor?: string | null;
@@ -101,7 +108,8 @@ export class TaskFacade {
                 updatedAt: new Date(),
             },
             select: {
-                id: true, code: true, bgColor: true, position: true,
+                id: true, code: true, name: true, description: true,
+                isCompleted: true, bgColor: true, position: true,
                 dateStart: true, dateEnd: true, createdAt: true,
                 status: { select: { id: true, name: true, bgColor: true } },
             },
@@ -113,9 +121,30 @@ export class TaskFacade {
             where: { id: taskId },
             data,
             select: {
-                id: true, code: true, bgColor: true, position: true,
+                id: true, code: true, name: true, description: true,
+                isCompleted: true, bgColor: true, position: true,
                 dateStart: true, dateEnd: true, updatedAt: true,
                 status: { select: { id: true, name: true, bgColor: true } },
+            },
+        });
+    }
+
+    static setCompleted(taskId: bigint, isCompleted: boolean) {
+        return prisma.tasks.update({
+            where: { id: taskId },
+            data: { isCompleted, updatedAt: new Date() },
+            select: { id: true, code: true, name: true, isCompleted: true, updatedAt: true },
+        });
+    }
+
+    static changeStatus(taskId: bigint, statusId: bigint) {
+        return prisma.tasks.update({
+            where: { id: taskId },
+            data: { statusId, updatedAt: new Date() },
+            select: {
+                id: true, code: true, name: true, isCompleted: true,
+                status: { select: { id: true, name: true, bgColor: true } },
+                updatedAt: true,
             },
         });
     }

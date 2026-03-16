@@ -4,7 +4,6 @@ import { asyncHandler } from "../../../../shared/asyncHandler";
 import { StatusService } from "./status.service";
 import {
     createStatusSchema,
-    deleteStatusSchema,
     getStatusesSchema,
     reorderStatusesSchema,
     updateStatusSchema,
@@ -26,12 +25,6 @@ export const updateStatus = asyncHandler(async (req: Request, res: Response) => 
     const { params, body } = updateStatusSchema.parse({ params: req.params, body: req.body });
     const status = await StatusService.updateStatus(params.id, params.statusId, body);
     return sendResponse(res, 200, { success: true, message: "Status updated successfully", data: status });
-});
-
-export const deleteStatus = asyncHandler(async (req: Request, res: Response) => {
-    const { params } = deleteStatusSchema.parse({ params: req.params });
-    await StatusService.deleteStatus(params.id, params.statusId);
-    return sendResponse(res, 200, { success: true, message: "Status deleted successfully", data: null });
 });
 
 export const reorderStatuses = asyncHandler(async (req: Request, res: Response) => {

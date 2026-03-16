@@ -22,6 +22,8 @@ export const getTaskDetailSchema = z.object({ params: taskIdParam });
 export const createTaskSchema = z.object({
     params: projectIdParam,
     body: z.object({
+        name: z.string().min(1).max(500),
+        description: z.string().optional(),
         statusId: z.string().regex(/^\d+$/).transform(BigInt),
         bgColor: z.string().optional(),
         dateStart: z.string().datetime().transform(v => new Date(v)).optional(),
@@ -32,6 +34,8 @@ export const createTaskSchema = z.object({
 export const updateTaskSchema = z.object({
     params: taskIdParam,
     body: z.object({
+        name: z.string().min(1).max(500).optional(),
+        description: z.string().nullable().optional(),
         statusId: z.string().regex(/^\d+$/).transform(BigInt).optional(),
         bgColor: z.string().optional(),
         dateStart: z.string().datetime().transform(v => new Date(v)).nullable().optional(),
@@ -40,7 +44,14 @@ export const updateTaskSchema = z.object({
     }),
 });
 
-export const deleteTaskSchema = z.object({ params: taskIdParam });
+export const completeTaskSchema = z.object({ params: taskIdParam });
+
+export const changeTaskStatusSchema = z.object({
+    params: taskIdParam,
+    body: z.object({
+        statusId: z.string().regex(/^\d+$/).transform(BigInt),
+    }),
+});
 
 export const assignMembersSchema = z.object({
     params: taskIdParam,

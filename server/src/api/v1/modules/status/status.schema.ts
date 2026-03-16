@@ -27,8 +27,6 @@ export const updateStatusSchema = z.object({
     }),
 });
 
-export const deleteStatusSchema = z.object({ params: statusIdParam });
-
 export const reorderStatusesSchema = z.object({
     params: projectIdParam,
     body: z.object({

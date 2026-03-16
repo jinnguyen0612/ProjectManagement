@@ -36,6 +36,8 @@ export class TaskService {
 
         return TaskFacade.create({
             code,
+            name: data.name,
+            description: data.description ?? null,
             projectId,
             statusId: data.statusId,
             bgColor: data.bgColor ?? null,
@@ -59,6 +61,8 @@ export class TaskService {
 
         const updateData: any = { updatedAt: new Date() };
         if (data.statusId !== undefined) updateData.statusId = data.statusId;
+        if (data.name !== undefined) updateData.name = data.name;
+        if (data.description !== undefined) updateData.description = data.description;
         if (data.bgColor !== undefined) updateData.bgColor = data.bgColor;
         if (data.dateStart !== undefined) updateData.dateStart = data.dateStart;
         if (data.dateEnd !== undefined) updateData.dateEnd = data.dateEnd;
@@ -67,13 +71,34 @@ export class TaskService {
         return TaskFacade.update(taskId, updateData);
     }
 
-    static async deleteTask(projectId: bigint, taskId: bigint) {
-        await assertProjectPermission(projectId, 'task.delete');
+    static async completeTask(projectId: bigint, taskId: bigint) {
+        await assertProjectPermission(projectId, 'task.update');
 
         const task = await TaskFacade.findRaw(taskId, projectId);
         if (!task) throw new AppError('Task not found', 404);
 
-        await TaskFacade.delete(taskId);
+        return TaskFacade.setCompleted(taskId, true);
+    }
+
+    static async uncompleteTask(projectId: bigint, taskId: bigint) {
+        await assertProjectPermission(projectId, 'task.update');
+
+        const task = await TaskFacade.findRaw(taskId, projectId);
+        if (!task) throw new AppError('Task not found', 404);
+
+        return TaskFacade.setCompleted(taskId, false);
+    }
+
+    static async changeTaskStatus(projectId: bigint, taskId: bigint, statusId: bigint) {
+        await assertProjectPermission(projectId, 'task.update');
+
+        const task = await TaskFacade.findRaw(taskId, projectId);
+        if (!task) throw new AppError('Task not found', 404);
+
+        const status = await TaskFacade.findStatusInProject(statusId, projectId);
+        if (!status) throw new AppError('Status not found in this project', 404);
+
+        return TaskFacade.changeStatus(taskId, statusId);
     }
 
     static async assignMembers(projectId: bigint, taskId: bigint, memberIds: bigint[]) {

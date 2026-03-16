@@ -2,20 +2,23 @@ import { Router } from "express";
 import { authenticate } from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validate.middleware";
 import {
-    assignMembersSchema,
     createTaskSchema,
-    deleteTaskSchema,
     getTaskDetailSchema,
     getTasksSchema,
     updateTaskSchema,
+    completeTaskSchema,
+    changeTaskStatusSchema,
+    assignMembersSchema,
 } from "../modules/task/task.schema";
 import {
-    assignMembers,
     createTask,
-    deleteTask,
     getTaskDetail,
     getTasks,
     updateTask,
+    completeTask,
+    uncompleteTask,
+    changeTaskStatus,
+    assignMembers,
 } from "../modules/task/task.controller";
 
 const router = Router({ mergeParams: true });
@@ -102,8 +105,13 @@ router.get("/:taskId", authenticate, validate(getTaskDetailSchema), getTaskDetai
  *         application/json:
  *           schema:
  *             type: object
- *             required: [statusId]
+ *             required: [name, statusId]
  *             properties:
+ *               name:
+ *                 type: string
+ *                 maxLength: 500
+ *               description:
+ *                 type: string
  *               statusId:
  *                 type: integer
  *               bgColor:
@@ -144,6 +152,12 @@ router.post("/create", authenticate, validate(createTaskSchema), createTask);
  *           schema:
  *             type: object
  *             properties:
+ *               name:
+ *                 type: string
+ *                 maxLength: 500
+ *               description:
+ *                 type: string
+ *                 nullable: true
  *               statusId:
  *                 type: integer
  *               bgColor:
@@ -164,30 +178,6 @@ router.post("/create", authenticate, validate(createTaskSchema), createTask);
  *         description: Task updated successfully
  */
 router.post("/update/:taskId", authenticate, validate(updateTaskSchema), updateTask);
-
-/**
- * @swagger
- * /project/{id}/tasks/delete/{taskId}:
- *   post:
- *     summary: Delete a task
- *     tags: [Tasks]
- *     security:
- *       - bearerAuth: []
- *       - apiKey: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema: { type: integer }
- *       - in: path
- *         name: taskId
- *         required: true
- *         schema: { type: integer }
- *     responses:
- *       200:
- *         description: Task deleted successfully
- */
-router.post("/delete/:taskId", authenticate, validate(deleteTaskSchema), deleteTask);
 
 /**
  * @swagger
@@ -226,5 +216,94 @@ router.post("/delete/:taskId", authenticate, validate(deleteTaskSchema), deleteT
  *         description: Members assigned successfully
  */
 router.post("/:taskId/assign", authenticate, validate(assignMembersSchema), assignMembers);
+
+/**
+ * @swagger
+ * /project/{id}/tasks/{taskId}/complete:
+ *   post:
+ *     summary: Mark a task as completed
+ *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
+ *       - apiKey: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *       - in: path
+ *         name: taskId
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: Task marked as completed
+ *       404:
+ *         description: Task not found
+ */
+router.post("/:taskId/complete", authenticate, validate(completeTaskSchema), completeTask);
+
+/**
+ * @swagger
+ * /project/{id}/tasks/{taskId}/uncomplete:
+ *   post:
+ *     summary: Revert task completion (mark as not completed)
+ *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
+ *       - apiKey: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *       - in: path
+ *         name: taskId
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: Task completion reverted
+ *       404:
+ *         description: Task not found
+ */
+router.post("/:taskId/uncomplete", authenticate, validate(completeTaskSchema), uncompleteTask);
+
+/**
+ * @swagger
+ * /project/{id}/tasks/{taskId}/change-status:
+ *   post:
+ *     summary: Change the status of a task
+ *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
+ *       - apiKey: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *       - in: path
+ *         name: taskId
+ *         required: true
+ *         schema: { type: integer }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [statusId]
+ *             properties:
+ *               statusId:
+ *                 type: integer
+ *                 description: ID of the target status
+ *     responses:
+ *       200:
+ *         description: Task status changed successfully
+ *       404:
+ *         description: Task or status not found
+ */
+router.post("/:taskId/change-status", authenticate, validate(changeTaskStatusSchema), changeTaskStatus);
 
 export default router;

@@ -41,18 +41,6 @@ export class StatusService {
         });
     }
 
-    static async deleteStatus(projectId: bigint, statusId: bigint) {
-        await assertProjectPermission(projectId, 'status.delete');
-
-        const status = await StatusFacade.findOne(statusId, projectId);
-        if (!status) throw new AppError('Status not found', 404);
-
-        const taskCount = await StatusFacade.countTasks(statusId);
-        if (taskCount > 0) throw new AppError('Cannot delete status that has tasks', 400);
-
-        await StatusFacade.delete(statusId);
-    }
-
     static async reorderStatuses(projectId: bigint, orderedIds: bigint[]) {
         await assertProjectPermission(projectId, 'status.update');
 

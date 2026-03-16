@@ -251,17 +251,20 @@ model Labels {
 }
 
 model Tasks {
-  id        BigInt    @id @default(autoincrement())
-  code      String    @db.VarChar(255)
-  projectId BigInt    @map("project_id")
-  bgColor   String?   @map("bg_color") @db.VarChar(50)
-  statusId  BigInt    @map("status_id")
-  dateStart DateTime? @map("date_start") @db.Timestamp(0)
-  dateEnd   DateTime? @map("date_end") @db.Timestamp(0)
-  position  BigInt    @default(0)
-  createdBy BigInt?   @map("created_by")
-  createdAt DateTime  @map("created_at") @db.Timestamp(0)
-  updatedAt DateTime  @map("updated_at") @db.Timestamp(0)
+  id          BigInt    @id @default(autoincrement())
+  code        String    @db.VarChar(255)
+  name        String    @db.VarChar(500)
+  description String?   @db.Text
+  isCompleted Boolean   @default(false) @map("is_completed")
+  projectId   BigInt    @map("project_id")
+  bgColor     String?   @map("bg_color") @db.VarChar(50)
+  statusId    BigInt    @map("status_id")
+  dateStart   DateTime? @map("date_start") @db.Timestamp(0)
+  dateEnd     DateTime? @map("date_end") @db.Timestamp(0)
+  position    BigInt    @default(0)
+  createdBy   BigInt?   @map("created_by")
+  createdAt   DateTime  @map("created_at") @db.Timestamp(0)
+  updatedAt   DateTime  @map("updated_at") @db.Timestamp(0)
 
   project Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
   status  Statuses @relation(fields: [statusId], references: [id], onDelete: Restrict)
