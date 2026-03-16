@@ -2,6 +2,9 @@
     {
         "id": 1,
         "code": "TASK-001",
+        "name": "Setup project structure",
+        "description": "Initialize the project repository and configure base dependencies",
+        "isCompleted": false,
         "projectId": 1,
         "bgColor": null,
         "statusId": 1,
@@ -15,6 +18,9 @@
     {
         "id": 2,
         "code": "TASK-002",
+        "name": "Design database schema",
+        "description": "Create ERD and define all tables and relationships",
+        "isCompleted": false,
         "projectId": 1,
         "bgColor": "#FBBF24",
         "statusId": 2,
@@ -28,6 +34,9 @@
     {
         "id": 3,
         "code": "TASK-003",
+        "name": "Implement authentication",
+        "description": "Build login, register, and JWT refresh token flow",
+        "isCompleted": true,
         "projectId": 1,
         "bgColor": null,
         "statusId": 3,
@@ -41,6 +50,9 @@
     {
         "id": 4,
         "code": "TASK-004",
+        "name": "Write API documentation",
+        "description": "Document all endpoints using Swagger/OpenAPI",
+        "isCompleted": false,
         "projectId": 1,
         "bgColor": null,
         "statusId": 4,
@@ -54,6 +66,9 @@
     {
         "id": 5,
         "code": "TASK-001",
+        "name": "UI mockup design",
+        "description": "Create wireframes and mockups for main screens",
+        "isCompleted": false,
         "projectId": 2,
         "bgColor": null,
         "statusId": 5,
@@ -67,6 +82,9 @@
     {
         "id": 6,
         "code": "TASK-002",
+        "name": "Frontend integration",
+        "description": "Connect frontend components to backend APIs",
+        "isCompleted": false,
         "projectId": 2,
         "bgColor": "#34D399",
         "statusId": 6,
