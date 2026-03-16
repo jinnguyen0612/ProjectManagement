@@ -14,6 +14,7 @@ export const getTasksSchema = z.object({
     query: z.object({
         statusId: z.string().regex(/^\d+$/).transform(BigInt).optional(),
         memberId: z.string().regex(/^\d+$/).transform(BigInt).optional(),
+        isCompleted: z.enum(['true', 'false']).transform(v => v === 'true').optional(),
     }).optional().default({}),
 });
 
@@ -57,5 +58,18 @@ export const assignMembersSchema = z.object({
     params: taskIdParam,
     body: z.object({
         memberIds: z.array(z.string().regex(/^\d+$/).transform(BigInt)).min(0),
+    }),
+});
+
+export const moveTaskSchema = z.object({
+    params: taskIdParam,
+    body: z.object({
+        // ID của status đích (bắt buộc, có thể giống status cũ nếu chỉ reorder)
+        newStatusId: z.string().regex(/^\d+$/).transform(BigInt),
+        // Ordered task IDs của status đích sau khi drop (bao gồm task được kéo)
+        targetOrderedIds: z.array(z.string().regex(/^\d+$/).transform(BigInt)).min(1),
+        // Ordered task IDs của status nguồn sau khi bỏ task ra (không bao gồm task được kéo)
+        // Bỏ qua nếu kéo trong cùng 1 status
+        sourceOrderedIds: z.array(z.string().regex(/^\d+$/).transform(BigInt)).optional(),
     }),
 });

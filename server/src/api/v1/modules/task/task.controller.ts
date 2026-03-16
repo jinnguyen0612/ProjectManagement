@@ -10,6 +10,7 @@ import {
     getTaskDetailSchema,
     getTasksSchema,
     updateTaskSchema,
+    moveTaskSchema,
 } from "./task.schema";
 
 export const getTasks = asyncHandler(async (req: Request, res: Response) => {
@@ -58,4 +59,16 @@ export const changeTaskStatus = asyncHandler(async (req: Request, res: Response)
     const { params, body } = changeTaskStatusSchema.parse({ params: req.params, body: req.body });
     const task = await TaskService.changeTaskStatus(params.id, params.taskId, body.statusId);
     return sendResponse(res, 200, { success: true, message: "Task status changed successfully", data: task });
+});
+
+export const moveTask = asyncHandler(async (req: Request, res: Response) => {
+    const { params, body } = moveTaskSchema.parse({ params: req.params, body: req.body });
+    const task = await TaskService.moveTask(
+        params.id,
+        params.taskId,
+        body.newStatusId,
+        body.targetOrderedIds,
+        body.sourceOrderedIds
+    );
+    return sendResponse(res, 200, { success: true, message: "Task moved successfully", data: task });
 });

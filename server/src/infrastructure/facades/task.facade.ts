@@ -149,8 +149,15 @@ export class TaskFacade {
         });
     }
 
-    static delete(taskId: bigint) {
-        return prisma.tasks.delete({ where: { id: taskId } });
+    static bulkUpdatePositions(updates: { id: bigint; position: bigint; statusId?: bigint }[]) {
+        return prisma.$transaction(
+            updates.map(({ id, position, statusId }) =>
+                prisma.tasks.update({
+                    where: { id },
+                    data: { position, ...(statusId !== undefined ? { statusId } : {}), updatedAt: new Date() },
+                })
+            )
+        );
     }
 
     static validateMembersInProject(memberIds: bigint[], projectId: bigint) {

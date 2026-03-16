@@ -9,6 +9,7 @@ import {
     completeTaskSchema,
     changeTaskStatusSchema,
     assignMembersSchema,
+    moveTaskSchema,
 } from "../modules/task/task.schema";
 import {
     createTask,
@@ -19,6 +20,7 @@ import {
     uncompleteTask,
     changeTaskStatus,
     assignMembers,
+    moveTask,
 } from "../modules/task/task.controller";
 
 const router = Router({ mergeParams: true });
@@ -53,6 +55,10 @@ const router = Router({ mergeParams: true });
  *         name: memberId
  *         schema: { type: integer }
  *         description: Filter by assigned member (Members.id)
+ *       - in: query
+ *         name: isCompleted
+ *         schema: { type: boolean }
+ *         description: Filter by completion status (true/false)
  *     responses:
  *       200:
  *         description: Tasks retrieved successfully
@@ -221,7 +227,7 @@ router.post("/:taskId/assign", authenticate, validate(assignMembersSchema), assi
  * @swagger
  * /project/{id}/tasks/{taskId}/complete:
  *   post:
- *     summary: Mark a task as completed
+ *     summary: Mark a task as completed (Leader only)
  *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
@@ -238,6 +244,8 @@ router.post("/:taskId/assign", authenticate, validate(assignMembersSchema), assi
  *     responses:
  *       200:
  *         description: Task marked as completed
+ *       403:
+ *         description: Leader role required
  *       404:
  *         description: Task not found
  */
@@ -247,7 +255,7 @@ router.post("/:taskId/complete", authenticate, validate(completeTaskSchema), com
  * @swagger
  * /project/{id}/tasks/{taskId}/uncomplete:
  *   post:
- *     summary: Revert task completion (mark as not completed)
+ *     summary: Revert task completion (Leader only)
  *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
@@ -264,6 +272,8 @@ router.post("/:taskId/complete", authenticate, validate(completeTaskSchema), com
  *     responses:
  *       200:
  *         description: Task completion reverted
+ *       403:
+ *         description: Leader role required
  *       404:
  *         description: Task not found
  */
@@ -305,5 +315,52 @@ router.post("/:taskId/uncomplete", authenticate, validate(completeTaskSchema), u
  *         description: Task or status not found
  */
 router.post("/:taskId/change-status", authenticate, validate(changeTaskStatusSchema), changeTaskStatus);
+
+/**
+ * @swagger
+ * /project/{id}/tasks/{taskId}/move:
+ *   post:
+ *     summary: Move a task (drag & drop) — update status and reorder both source and target columns
+ *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
+ *       - apiKey: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *       - in: path
+ *         name: taskId
+ *         required: true
+ *         schema: { type: integer }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [newStatusId, targetOrderedIds]
+ *             properties:
+ *               newStatusId:
+ *                 type: integer
+ *                 description: Status ID of the target column (can be same as current for reorder-only)
+ *               targetOrderedIds:
+ *                 type: array
+ *                 items: { type: integer }
+ *                 description: Ordered task IDs in the target column after drop (must include the moved task)
+ *                 example: [5, 1, 3]
+ *               sourceOrderedIds:
+ *                 type: array
+ *                 items: { type: integer }
+ *                 description: Ordered task IDs remaining in the source column after removing the moved task (omit if same-column reorder)
+ *                 example: [2, 4]
+ *     responses:
+ *       200:
+ *         description: Task moved successfully
+ *       404:
+ *         description: Task or status not found
+ */
+router.post("/:taskId/move", authenticate, validate(moveTaskSchema), moveTask);
 
 export default router;
