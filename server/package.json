@@ -9,7 +9,7 @@
   "scripts": {
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
-    "build": "rimraf ./dist && tsc",
+    "build": "rimraf ./dist && tsc && copyfiles -u 1 \"src/infrastructure/templates/**/*\" dist/src",
     "start": "npm run build && node dist/src/server.js",
     "dev": "npm run build && concurrently \"npx tsc -w\" \"nodemon --exec ts-node src/server.ts\"",
     "db:generate": "prisma generate",
@@ -57,6 +57,7 @@
     "@types/supertest": "^7.2.0",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
+    "copyfiles": "^2.4.1",
     "cross-env": "^10.1.0",
     "jest": "^30.3.0",
     "prisma": "^7.4.1",
