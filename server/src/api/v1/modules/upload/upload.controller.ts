@@ -13,7 +13,7 @@ export const uploadImage = asyncHandler(async (req: Request, res: Response) => {
             return sendError(res, 400, "No image file provided");
         }
 
-        const result = await uploadToCloudinary(req.file.buffer, "images");
+        const result = await uploadToCloudinary(req.file.buffer, "ProjectManager/images");
 
         return sendResponse(res, 200, {
             success: true,
@@ -39,7 +39,7 @@ export const uploadImages = asyncHandler(async (req: Request, res: Response) => 
         }
 
         const results = await Promise.all(
-            files.map((file) => uploadToCloudinary(file.buffer, "images"))
+            files.map((file) => uploadToCloudinary(file.buffer, "ProjectManager/images"))
         );
 
         return sendResponse(res, 200, {
@@ -63,7 +63,7 @@ export const uploadVideo = asyncHandler(async (req: Request, res: Response) => {
             return sendError(res, 400, "No video file provided");
         }
 
-        const result = await uploadToCloudinary(req.file.buffer, "videos", "video");
+        const result = await uploadToCloudinary(req.file.buffer, "ProjectManager/videos", "video");
 
         return sendResponse(res, 200, {
             success: true,
