@@ -73,19 +73,31 @@ router.post("/login", validate(loginSchema), login);
  *             required:
  *               - email
  *               - password
+ *               - confirmPassword
  *               - fullname
  *             properties:
  *               email:
  *                 type: string
  *                 format: email
  *                 example: user@example.com
+ *               fullname:
+ *                 type: string
+ *                 example: Nguyen Van A
+ *               phone:
+ *                 type: string
+ *                 example: "0123456789"
+ *               avatar:
+ *                 type: string
+ *                 format: uri
+ *                 example: https://example.com/avatar.jpg
  *               password:
  *                 type: string
  *                 minLength: 6
  *                 example: "123456"
- *               fullname:
+ *               confirmPassword:
  *                 type: string
- *                 example: Nguyen Van A
+ *                 minLength: 6
+ *                 example: "123456"
  *     responses:
  *       201:
  *         description: User registered successfully

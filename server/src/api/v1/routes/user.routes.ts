@@ -141,14 +141,28 @@ router.post("/create", authenticate, authorize(UserRole.ADMIN), validate(createU
  *           schema:
  *             type: object
  *             properties:
+ *               fullname:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               avatar:
+ *                 type: string
+ *                 nullable: true
+ *               bio:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive, blocked]
+ *               roleId:
+ *                 type: integer
  *               password:
  *                 type: string
  *                 minLength: 6
  *               confirmPassword:
  *                 type: string
  *                 minLength: 6
- *               roleId:
- *                 type: integer
  *     responses:
  *       200:
  *         description: User updated successfully
