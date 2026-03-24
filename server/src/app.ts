@@ -1,4 +1,5 @@
 import express from "express";
+import path from "path";
 import { setupSwagger } from "./core/config/swagger";
 import { helmetConfig, crossOriginConfig } from "./core/config/helmet";
 import { corsConfig } from "./core/config/cors";
@@ -18,7 +19,7 @@ import v1Routes from "./api/v1/routes/index";
 
 const app = express();
 app.use(express.json());
-app.use("/assets", express.static("src/assets"));
+app.use("/assets", express.static(path.join(__dirname, "assets")));
 app.use(corsConfig);
 app.use(helmetConfig);
 app.use(crossOriginConfig);
