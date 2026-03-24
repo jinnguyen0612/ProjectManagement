@@ -2,17 +2,21 @@
   "version": 2,
   "builds": [
     {
-      "src": "dist/api/index.js",
+      "src": "api/index.ts",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["dist/**"]
+        "includeFiles": [
+          "src/**",
+          "prisma/**",
+          "tsconfig.json"
+        ]
       }
     }
   ],
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/dist/api/index.js"
+      "destination": "/api/index.ts"
     }
   ]
 }
