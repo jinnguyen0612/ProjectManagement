@@ -9,7 +9,7 @@
   "scripts": {
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
-    "build": "rimraf ./dist && esbuild api/index.ts --bundle --platform=node --target=node20 --outfile=dist/index.js --external:@prisma/client --external:prisma --external:pg --external:bcrypt --external:firebase-admin --external:nodemailer --external:cloudinary --external:multer && copyfiles -u 1 \"src/infrastructure/templates/**/*\" dist/src",
+    "build": "rimraf ./dist && esbuild api/index.ts --bundle --platform=node --target=node20 --outfile=api/bundle.js --external:@prisma/client --external:prisma --external:pg --external:bcrypt --external:firebase-admin --external:nodemailer --external:cloudinary --external:multer && copyfiles -u 1 \"src/infrastructure/templates/**/*\" dist/src",
     "start": "npm run build && node dist/src/server.js",
     "dev": "npm run build && concurrently \"npx tsc -w\" \"nodemon --exec ts-node src/server.ts\"",
     "postinstall": "prisma generate",
