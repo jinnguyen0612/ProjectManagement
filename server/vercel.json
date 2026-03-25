@@ -1,22 +1,15 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "src/**",
-          "prisma/**",
-          "tsconfig.json"
-        ]
-      }
+  "buildCommand": "npm run build",
+  "functions": {
+    "dist/index.js": {
+      "runtime": "nodejs20.x"
     }
-  ],
+  },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/api/index.ts"
+      "destination": "/dist/index.js"
     }
   ]
 }
