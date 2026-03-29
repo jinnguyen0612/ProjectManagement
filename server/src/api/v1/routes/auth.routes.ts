@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { validate } from "../middlewares/validate.middleware";
+import { authenticate } from "../middlewares/auth.middleware";
 import { loginSchema, refreshTokenSchema, registerSchema, resendOTPSchema, verifyRegisterSchema } from "../modules/auth/auth.schema";
-import { login, refreshToken, register, resendOTP, verifyRegister } from "../modules/auth/auth.controller";
+import { login, logout, refreshToken, register, resendOTP, verifyRegister } from "../modules/auth/auth.controller";
 
 const router = Router();
 
@@ -259,5 +260,33 @@ router.post("/verify-register", validate(verifyRegisterSchema), verifyRegister);
  */
 router.post("/refresh-token", validate(refreshTokenSchema), refreshToken);
 
-export default router;
+/**
+ * @swagger
+ * /auth/logout:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Logout
+ *     description: Logout the current user by deleting the refresh token matching the request's IP address and user agent
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Logout successful
+ *       401:
+ *         description: Unauthorized - Access token is missing or invalid
+ */
+router.post("/logout", authenticate, logout);
 
+export default router;

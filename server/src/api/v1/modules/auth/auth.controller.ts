@@ -61,3 +61,16 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
         data: result,
     });
 });
+
+export const logout = asyncHandler(async (req: Request, res: Response) => {
+    const userId = currentUserId();
+    const ipAddress = req.ip || req.socket.remoteAddress;
+    const userAgent = req.headers["user-agent"];
+
+    await AuthService.logout(userId, ipAddress, userAgent);
+
+    return sendResponse(res, 200, {
+        success: true,
+        message: "Logout successful",
+    });
+});

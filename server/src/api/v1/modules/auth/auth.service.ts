@@ -122,6 +122,10 @@ export class AuthService {
         return { user: userWithoutPassword, accessToken, refreshToken };
     }
 
+    static async logout(userId: number, ipAddress?: string, userAgent?: string) {
+        await AuthFacade.deleteJwtTokensByDevice(BigInt(userId), ipAddress, userAgent);
+    }
+
     static async refreshToken(data: RefreshTokenInput, ipAddress?: string, userAgent?: string) {
         const userId = decodeToken(data.accessToken)?.userId;
         if (!userId) throw new AppError("Invalid access token", 401);
