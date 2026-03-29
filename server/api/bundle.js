@@ -78052,69 +78052,6 @@ var validate = (schema) => (req, res, next) => {
   }
 };
 
-// src/api/v1/modules/auth/auth.schema.ts
-var registerSchema = external_exports.object({
-  body: external_exports.object({
-    email: external_exports.string().email("Email is invalid"),
-    phone: external_exports.string().min(10, "Phone must be at least 10 characters").max(15, "Phone must be at most 15 characters").optional(),
-    avatar: external_exports.string().url("Avatar must be a valid URL").optional(),
-    fullname: external_exports.string().min(1, "Fullname is required"),
-    password: external_exports.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: external_exports.string().min(6, "Confirm Password must be at least 6 characters")
-  }).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"]
-  })
-});
-var loginSchema = external_exports.object({
-  body: external_exports.object({
-    username: external_exports.string().min(1, "Username is required"),
-    password: external_exports.string().min(6, "Password must be at least 6 characters")
-  })
-});
-var resendOTPSchema = external_exports.object({
-  body: external_exports.object({
-    email: external_exports.string().email("Email is invalid"),
-    type: external_exports.enum(["register" /* REGISTER */, "forgot_password" /* FORGOT_PASSWORD */]).default("register" /* REGISTER */)
-  })
-});
-var verifyRegisterSchema = external_exports.object({
-  body: external_exports.object({
-    email: external_exports.string().email("Email is invalid"),
-    otp: external_exports.string().min(6, "OTP must be at least 6 characters")
-  })
-});
-var refreshTokenSchema = external_exports.object({
-  body: external_exports.object({
-    accessToken: external_exports.string().min(1, "Access token is required"),
-    refreshToken: external_exports.string().min(1, "Refresh token is required")
-  })
-});
-
-// src/core/errors/app-error.ts
-var AppError = class extends Error {
-  constructor(message, statusCode) {
-    super(message);
-    this.statusCode = statusCode;
-  }
-};
-
-// src/infrastructure/libs/bcrypt.ts
-var import_bcrypt = __toESM(require("bcrypt"));
-var SALT_ROUNDS = Number(env.BCRYPT_SALT_ROUNDS) || 12;
-var hashPassword = async (password) => {
-  return await import_bcrypt.default.hash(password, SALT_ROUNDS);
-};
-var comparePassword = async (password, hashedPassword) => {
-  return await import_bcrypt.default.compare(password, hashedPassword);
-};
-var hashToken = async (token) => {
-  return await import_bcrypt.default.hash(token, SALT_ROUNDS);
-};
-var compareToken = async (token, hashedToken) => {
-  return await import_bcrypt.default.compare(token, hashedToken);
-};
-
 // src/infrastructure/libs/jwt.ts
 var import_jsonwebtoken = __toESM(require_jsonwebtoken());
 
@@ -79150,6 +79087,22 @@ var prisma = new import_client.PrismaClient({
 });
 var prisma_default = prisma;
 
+// src/infrastructure/libs/bcrypt.ts
+var import_bcrypt = __toESM(require("bcrypt"));
+var SALT_ROUNDS = Number(env.BCRYPT_SALT_ROUNDS) || 12;
+var hashPassword = async (password) => {
+  return await import_bcrypt.default.hash(password, SALT_ROUNDS);
+};
+var comparePassword = async (password, hashedPassword) => {
+  return await import_bcrypt.default.compare(password, hashedPassword);
+};
+var hashToken = async (token) => {
+  return await import_bcrypt.default.hash(token, SALT_ROUNDS);
+};
+var compareToken = async (token, hashedToken) => {
+  return await import_bcrypt.default.compare(token, hashedToken);
+};
+
 // src/infrastructure/libs/jwt.ts
 var accessOptions = {
   expiresIn: env.ACCESS_TIMEOUT
@@ -79183,6 +79136,198 @@ var storeRefreshToken = async (userId, refreshToken2, ipAddress, userAgent) => {
       createdAt: /* @__PURE__ */ new Date()
     }
   });
+};
+
+// src/hooks/useUserContext.ts
+var import_async_hooks = require("async_hooks");
+var storage = new import_async_hooks.AsyncLocalStorage();
+var runWithUser = (user, next) => {
+  storage.run(user, next);
+};
+var getUserContext = () => {
+  return storage.getStore();
+};
+
+// src/api/v1/middlewares/auth.middleware.ts
+var authenticate = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({
+      success: false,
+      message: "Access token is missing"
+    });
+  }
+  const token = authHeader.split(" ")[1];
+  try {
+    const payload = verifyAccessToken(token);
+    req.user = payload;
+    runWithUser(payload, () => {
+      next();
+    });
+  } catch (error48) {
+    if (error48.name === "TokenExpiredError") {
+      return res.status(401).json({
+        success: false,
+        message: "Access token has expired"
+      });
+    }
+    return res.status(401).json({
+      success: false,
+      message: "Invalid access token"
+    });
+  }
+};
+var authCache = /* @__PURE__ */ new Map();
+var CACHE_TTL = 5 * 60 * 1e3;
+var authorize = (...rolesOrPermissions) => {
+  return async (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authenticated"
+      });
+    }
+    try {
+      const userId = req.user.userId;
+      const now = Date.now();
+      let cached2 = authCache.get(userId);
+      if (cached2 && now - cached2.timestamp < CACHE_TTL) {
+        return checkAuthorization(
+          cached2.userRoles,
+          cached2.allPermissions,
+          cached2.deniedPermissions,
+          rolesOrPermissions,
+          res,
+          next
+        );
+      }
+      const user = await prisma_default.users.findUnique({
+        where: { id: userId },
+        include: {
+          usersRoles: {
+            include: {
+              role: {
+                include: {
+                  rolesPermissions: {
+                    include: {
+                      permission: true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          usersPermissions: {
+            include: {
+              permission: true
+            }
+          }
+        }
+      });
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "User not found"
+        });
+      }
+      const userRoles = new Set(user.usersRoles.map((ur) => ur.role.name));
+      const rolePermissions = user.usersRoles.flatMap(
+        (ur) => ur.role.rolesPermissions.map((rp) => rp.permission.key)
+      );
+      const grantedPermissions = user.usersPermissions.filter((up) => !up.isDeny).map((up) => up.permission.key);
+      const deniedPermissions = new Set(
+        user.usersPermissions.filter((up) => up.isDeny).map((up) => up.permission.key)
+      );
+      const allPermissions = /* @__PURE__ */ new Set([...rolePermissions, ...grantedPermissions]);
+      authCache.set(userId, {
+        userRoles,
+        allPermissions,
+        deniedPermissions,
+        timestamp: now
+      });
+      if (authCache.size > 1e3) {
+        const entries = Array.from(authCache.entries());
+        entries.filter(([_, data]) => now - data.timestamp > CACHE_TTL).forEach(([key]) => authCache.delete(key));
+      }
+      return checkAuthorization(
+        userRoles,
+        allPermissions,
+        deniedPermissions,
+        rolesOrPermissions,
+        res,
+        next
+      );
+    } catch (error48) {
+      console.error("Authorization error:", error48);
+      return res.status(500).json({
+        success: false,
+        message: "Authorization check failed"
+      });
+    }
+  };
+};
+function checkAuthorization(userRoles, allPermissions, deniedPermissions, rolesOrPermissions, res, next) {
+  for (const item of rolesOrPermissions) {
+    if (userRoles.has(item)) {
+      return next();
+    }
+    if (allPermissions.has(item)) {
+      if (!deniedPermissions.has(item)) {
+        return next();
+      }
+    }
+  }
+  return res.status(403).json({
+    success: false,
+    message: "You do not have permission to access this resource"
+  });
+}
+
+// src/api/v1/modules/auth/auth.schema.ts
+var registerSchema = external_exports.object({
+  body: external_exports.object({
+    email: external_exports.string().email("Email is invalid"),
+    phone: external_exports.string().min(10, "Phone must be at least 10 characters").max(15, "Phone must be at most 15 characters").optional(),
+    avatar: external_exports.string().url("Avatar must be a valid URL").optional(),
+    fullname: external_exports.string().min(1, "Fullname is required"),
+    password: external_exports.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: external_exports.string().min(6, "Confirm Password must be at least 6 characters")
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"]
+  })
+});
+var loginSchema = external_exports.object({
+  body: external_exports.object({
+    username: external_exports.string().min(1, "Username is required"),
+    password: external_exports.string().min(6, "Password must be at least 6 characters")
+  })
+});
+var resendOTPSchema = external_exports.object({
+  body: external_exports.object({
+    email: external_exports.string().email("Email is invalid"),
+    type: external_exports.enum(["register" /* REGISTER */, "forgot_password" /* FORGOT_PASSWORD */]).default("register" /* REGISTER */)
+  })
+});
+var verifyRegisterSchema = external_exports.object({
+  body: external_exports.object({
+    email: external_exports.string().email("Email is invalid"),
+    otp: external_exports.string().min(6, "OTP must be at least 6 characters")
+  })
+});
+var refreshTokenSchema = external_exports.object({
+  body: external_exports.object({
+    accessToken: external_exports.string().min(1, "Access token is required"),
+    refreshToken: external_exports.string().min(1, "Refresh token is required")
+  })
+});
+
+// src/core/errors/app-error.ts
+var AppError = class extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+  }
 };
 
 // src/infrastructure/services/email.service.ts
@@ -79444,6 +79589,9 @@ var AuthService = class {
     const { password, ...userWithoutPassword } = user;
     return { user: userWithoutPassword, accessToken, refreshToken: refreshToken2 };
   }
+  static async logout(userId, ipAddress, userAgent) {
+    await AuthFacade.deleteJwtTokensByDevice(BigInt(userId), ipAddress, userAgent);
+  }
   static async refreshToken(data, ipAddress, userAgent) {
     const userId = decodeToken(data.accessToken)?.userId;
     if (!userId) throw new AppError("Invalid access token", 401);
@@ -79483,6 +79631,36 @@ var sendError = (res, statusCode, message, errors) => {
 // src/shared/asyncHandler.ts
 var asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+// src/hooks/useAuth.ts
+var currentUserId = () => {
+  const context = getUserContext();
+  if (!context || !context.userId) {
+    throw new AppError("Unauthorized: User session not found", 401);
+  }
+  return context.userId;
+};
+var currentUser = async () => {
+  const userId = currentUserId();
+  const user = await UserFacade.findById(userId);
+  if (!user) throw new AppError("User not found", 404);
+  const { password, ...userWithoutPassword } = user;
+  return userWithoutPassword;
+};
+var currentUserWith = async (include) => {
+  const userId = currentUserId();
+  const user = await UserFacade.findByIdWith(userId, include);
+  if (!user) throw new AppError("User not found", 404);
+  const { password, ...userWithoutPassword } = user;
+  return userWithoutPassword;
+};
+var currentUserWithRole = async () => {
+  const user = await currentUserWith({
+    usersRoles: { include: { role: true } }
+  });
+  const isAdmin = user.usersRoles?.some((ur) => ur.role.name === "admin" /* ADMIN */) ?? false;
+  return { user, isAdmin };
 };
 
 // src/api/v1/modules/auth/auth.controller.ts
@@ -79531,6 +79709,16 @@ var refreshToken = asyncHandler(async (req, res) => {
     data: result
   });
 });
+var logout = asyncHandler(async (req, res) => {
+  const userId = currentUserId();
+  const ipAddress = req.ip || req.socket.remoteAddress;
+  const userAgent = req.headers["user-agent"];
+  await AuthService.logout(userId, ipAddress, userAgent);
+  return sendResponse(res, 200, {
+    success: true,
+    message: "Logout successful"
+  });
+});
 
 // src/api/v1/routes/auth.routes.ts
 var router = (0, import_express2.Router)();
@@ -79539,6 +79727,7 @@ router.post("/register", validate(registerSchema), register);
 router.post("/resend-otp", validate(resendOTPSchema), resendOTP);
 router.post("/verify-register", validate(verifyRegisterSchema), verifyRegister);
 router.post("/refresh-token", validate(refreshTokenSchema), refreshToken);
+router.post("/logout", authenticate, logout);
 var auth_routes_default = router;
 
 // src/api/v1/routes/upload.routes.ts
@@ -79546,7 +79735,7 @@ var import_express3 = __toESM(require_express2());
 
 // src/core/config/multer.ts
 var import_multer = __toESM(require("multer"));
-var storage = import_multer.default.memoryStorage();
+var storage2 = import_multer.default.memoryStorage();
 var imageFilter = (req, file2, cb) => {
   if (file2.mimetype.startsWith("image/")) {
     cb(null, true);
@@ -79562,17 +79751,17 @@ var videoFilter = (req, file2, cb) => {
   }
 };
 var uploadSingleImage = (0, import_multer.default)({
-  storage,
+  storage: storage2,
   fileFilter: imageFilter,
   limits: { fileSize: 10 * 1024 * 1024 }
 }).single("image");
 var uploadMultipleImages = (0, import_multer.default)({
-  storage,
+  storage: storage2,
   fileFilter: imageFilter,
   limits: { fileSize: 10 * 1024 * 1024 }
 }).array("images", 10);
 var uploadSingleVideo = (0, import_multer.default)({
-  storage,
+  storage: storage2,
   fileFilter: videoFilter,
   limits: { fileSize: 100 * 1024 * 1024 }
 }).single("video");
@@ -79675,46 +79864,6 @@ var upload_routes_default = router2;
 // src/api/v1/routes/profile.routes.ts
 var import_express4 = __toESM(require_express2());
 
-// src/hooks/useUserContext.ts
-var import_async_hooks = require("async_hooks");
-var storage2 = new import_async_hooks.AsyncLocalStorage();
-var runWithUser = (user, next) => {
-  storage2.run(user, next);
-};
-var getUserContext = () => {
-  return storage2.getStore();
-};
-
-// src/hooks/useAuth.ts
-var currentUserId = () => {
-  const context = getUserContext();
-  if (!context || !context.userId) {
-    throw new AppError("Unauthorized: User session not found", 401);
-  }
-  return context.userId;
-};
-var currentUser = async () => {
-  const userId = currentUserId();
-  const user = await UserFacade.findById(userId);
-  if (!user) throw new AppError("User not found", 404);
-  const { password, ...userWithoutPassword } = user;
-  return userWithoutPassword;
-};
-var currentUserWith = async (include) => {
-  const userId = currentUserId();
-  const user = await UserFacade.findByIdWith(userId, include);
-  if (!user) throw new AppError("User not found", 404);
-  const { password, ...userWithoutPassword } = user;
-  return userWithoutPassword;
-};
-var currentUserWithRole = async () => {
-  const user = await currentUserWith({
-    usersRoles: { include: { role: true } }
-  });
-  const isAdmin = user.usersRoles?.some((ur) => ur.role.name === "admin" /* ADMIN */) ?? false;
-  return { user, isAdmin };
-};
-
 // src/api/v1/modules/profile/profile.service.ts
 var ProfileService = class {
   static async updateProfile(id, data) {
@@ -79767,141 +79916,6 @@ var changePassword = asyncHandler(async (req, res) => {
     message: "Password changed successfully"
   });
 });
-
-// src/api/v1/middlewares/auth.middleware.ts
-var authenticate = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({
-      success: false,
-      message: "Access token is missing"
-    });
-  }
-  const token = authHeader.split(" ")[1];
-  try {
-    const payload = verifyAccessToken(token);
-    req.user = payload;
-    runWithUser(payload, () => {
-      next();
-    });
-  } catch (error48) {
-    if (error48.name === "TokenExpiredError") {
-      return res.status(401).json({
-        success: false,
-        message: "Access token has expired"
-      });
-    }
-    return res.status(401).json({
-      success: false,
-      message: "Invalid access token"
-    });
-  }
-};
-var authCache = /* @__PURE__ */ new Map();
-var CACHE_TTL = 5 * 60 * 1e3;
-var authorize = (...rolesOrPermissions) => {
-  return async (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: "Not authenticated"
-      });
-    }
-    try {
-      const userId = req.user.userId;
-      const now = Date.now();
-      let cached2 = authCache.get(userId);
-      if (cached2 && now - cached2.timestamp < CACHE_TTL) {
-        return checkAuthorization(
-          cached2.userRoles,
-          cached2.allPermissions,
-          cached2.deniedPermissions,
-          rolesOrPermissions,
-          res,
-          next
-        );
-      }
-      const user = await prisma_default.users.findUnique({
-        where: { id: userId },
-        include: {
-          usersRoles: {
-            include: {
-              role: {
-                include: {
-                  rolesPermissions: {
-                    include: {
-                      permission: true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          usersPermissions: {
-            include: {
-              permission: true
-            }
-          }
-        }
-      });
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: "User not found"
-        });
-      }
-      const userRoles = new Set(user.usersRoles.map((ur) => ur.role.name));
-      const rolePermissions = user.usersRoles.flatMap(
-        (ur) => ur.role.rolesPermissions.map((rp) => rp.permission.key)
-      );
-      const grantedPermissions = user.usersPermissions.filter((up) => !up.isDeny).map((up) => up.permission.key);
-      const deniedPermissions = new Set(
-        user.usersPermissions.filter((up) => up.isDeny).map((up) => up.permission.key)
-      );
-      const allPermissions = /* @__PURE__ */ new Set([...rolePermissions, ...grantedPermissions]);
-      authCache.set(userId, {
-        userRoles,
-        allPermissions,
-        deniedPermissions,
-        timestamp: now
-      });
-      if (authCache.size > 1e3) {
-        const entries = Array.from(authCache.entries());
-        entries.filter(([_, data]) => now - data.timestamp > CACHE_TTL).forEach(([key]) => authCache.delete(key));
-      }
-      return checkAuthorization(
-        userRoles,
-        allPermissions,
-        deniedPermissions,
-        rolesOrPermissions,
-        res,
-        next
-      );
-    } catch (error48) {
-      console.error("Authorization error:", error48);
-      return res.status(500).json({
-        success: false,
-        message: "Authorization check failed"
-      });
-    }
-  };
-};
-function checkAuthorization(userRoles, allPermissions, deniedPermissions, rolesOrPermissions, res, next) {
-  for (const item of rolesOrPermissions) {
-    if (userRoles.has(item)) {
-      return next();
-    }
-    if (allPermissions.has(item)) {
-      if (!deniedPermissions.has(item)) {
-        return next();
-      }
-    }
-  }
-  return res.status(403).json({
-    success: false,
-    message: "You do not have permission to access this resource"
-  });
-}
 
 // src/api/v1/modules/profile/profile.schema.ts
 var updateProfileSchema = external_exports.object({
@@ -81514,12 +81528,12 @@ var MemberService = class _MemberService {
     if (!user) throw new AppError("User not found", 404);
     const existing = await MemberFacade.findByUserId(projectId, data.userId);
     if (existing) throw new AppError("User is already a member of this project", 409);
-    const { user: currentUser2 } = await currentUserWithRole();
+    const { user: currentUser3 } = await currentUserWithRole();
     return MemberFacade.create({
       projectId,
       userId: data.userId,
       role: data.role ?? "member" /* MEMBER */,
-      addBy: currentUser2.id
+      addBy: currentUser3.id
     });
   }
   static async removeMember(projectId, memberId) {
