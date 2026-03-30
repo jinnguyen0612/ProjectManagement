@@ -201,6 +201,13 @@ export const setupSwagger = (app: Express) => {
     };
     
     router.use(swaggerUi.serve);
+    
+    // Explicit redirects for Swagger UI assets to CDN to fix 404 on Vercel
+    const SWAGGER_UI_CDN = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0";
+    router.get("/swagger-ui.css", (req, res) => res.redirect(`${SWAGGER_UI_CDN}/swagger-ui.min.css`));
+    router.get("/swagger-ui-bundle.js", (req, res) => res.redirect(`${SWAGGER_UI_CDN}/swagger-ui-bundle.js`));
+    router.get("/swagger-ui-standalone-preset.js", (req, res) => res.redirect(`${SWAGGER_UI_CDN}/swagger-ui-standalone-preset.js`));
+    
     router.get("/", swaggerUi.setup(swaggerSpec, swaggerUiOptions));
     app.use("/docs", router);
 };
