@@ -1,78 +1,10 @@
-import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Express, Router } from "express";
 import path from "path";
+// @ts-ignore
+import swaggerSpec from "../../../swagger-output.json";
 
-const options = {
-    definition: {
-        components: {
-            securitySchemes: {
-                bearerAuth: {
-                    type: "http",
-                    scheme: "bearer",
-                    bearerFormat: "JWT",
-                },
-                apiKey: {
-                    type: "apiKey",
-                    in: "header",
-                    name: "x-api-key",
-                    description: "API Key for authentication (Default: pk_7K9mN2pQ4rS6tU8vW0xY1zA3bC5dE7fG9hJ1kL3mN5oP)",
-                },
-            },
-        },
-        security: [
-            {
-                bearerAuth: [],
-                apiKey: [],
-            },
-        ],
-        openapi: "3.0.0",
-        info: {
-            title: "Project Management API",
-            version: "1.0.0",
-            description: `
-# Project Management System API
-
-## Authentication
-
-This API requires two types of authentication:
-
-1. **Bearer Token (JWT)**: For user authentication
-2. **API Key**: For application authentication
-
-### Default API Key for Testing
-\`\`\`
-pk_7K9mN2pQ4rS6tU8vW0xY1zA3bC5dE7fG9hJ1kL3mN5oP
-\`\`\`
-
-Click the "Authorize" button and paste the API key above.
-
-### How to use:
-1. Click "Authorize" button (top right)
-2. Enter API Key in the "apiKey" field
-3. Enter Bearer Token in the "bearerAuth" field (if you have one)
-4. Click "Authorize"
-5. Try the endpoints!
-            `,
-        },
-        servers: [
-            {
-                url: "/api/v1",
-                description: "API version 1.0.0",
-            },
-            {
-                url: "http://localhost:3000/api/v1",
-                description: "Local development server",
-            },
-        ],
-    },
-    apis: [
-        path.join(process.cwd(), "src/api/v1/modules/**/*.ts").replace(/\\/g, "/"),
-        path.join(process.cwd(), "src/api/v1/routes/*.ts").replace(/\\/g, "/"),
-    ],
-};
-
-const swaggerSpec = swaggerJsdoc(options);
+// Using pre-generated swagger spec
 
 export const setupSwagger = (app: Express) => {
     const router = Router();
