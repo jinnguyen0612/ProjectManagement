@@ -1,0 +1,23 @@
+{
+    "admin": [
+        "users.view",
+        "users.create",
+        "users.edit",
+        "users.delete",
+        "projects.view",
+        "projects.create",
+        "projects.edit",
+        "projects.delete",
+        "settings.view",
+        "settings.edit"
+    ],
+    "manager": [
+        "projects.view",
+        "projects.create",
+        "projects.edit",
+        "settings.view"
+    ],
+    "user": [
+        "projects.view"
+    ]
+}
