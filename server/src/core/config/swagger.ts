@@ -194,10 +194,6 @@ export const setupSwagger = (app: Express) => {
         customSiteTitle: "Project Management API Docs",
         customfavIcon: "/assets/favicon.ico",
         customCssUrl: "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css",
-        customJs: [
-            "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js",
-            "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js",
-        ],
     };
     
     // Explicit redirects for Swagger UI assets to CDN to fix 404 on Vercel
