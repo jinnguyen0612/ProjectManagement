@@ -1,6 +1,7 @@
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Express, Router } from "express";
+import path from "path";
 
 const options = {
     definition: {
@@ -56,12 +57,19 @@ Click the "Authorize" button and paste the API key above.
         },
         servers: [
             {
+                url: "/api/v1",
+                description: "API version 1.0.0",
+            },
+            {
                 url: "http://localhost:3000/api/v1",
-                description: "Development server",
+                description: "Local development server",
             },
         ],
     },
-    apis: ["./src/api/v1/modules/**/*.ts", "./src/api/v1/routes/*.ts"],
+    apis: [
+        path.join(process.cwd(), "src/api/v1/modules/**/*.ts").replace(/\\/g, "/"),
+        path.join(process.cwd(), "src/api/v1/routes/*.ts").replace(/\\/g, "/"),
+    ],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
@@ -185,6 +193,11 @@ export const setupSwagger = (app: Express) => {
         `,
         customSiteTitle: "Project Management API Docs",
         customfavIcon: "/assets/favicon.ico",
+        customCssUrl: "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css",
+        customJs: [
+            "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js",
+        ],
     };
     
     router.use(swaggerUi.serve);
