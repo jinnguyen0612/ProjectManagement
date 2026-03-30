@@ -62672,12 +62672,12 @@ var setupSwagger = (app2) => {
         `,
     customSiteTitle: "Project Management API Docs",
     customfavIcon: "/assets/favicon.ico",
-    customCssUrl: "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css",
-    customJs: [
-      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js",
-      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"
-    ]
+    customCssUrl: "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css"
   };
+  const SWAGGER_UI_CDN = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0";
+  router14.get("/swagger-ui.css", (req, res) => res.redirect(`${SWAGGER_UI_CDN}/swagger-ui.min.css`));
+  router14.get("/swagger-ui-bundle.js", (req, res) => res.redirect(`${SWAGGER_UI_CDN}/swagger-ui-bundle.js`));
+  router14.get("/swagger-ui-standalone-preset.js", (req, res) => res.redirect(`${SWAGGER_UI_CDN}/swagger-ui-standalone-preset.js`));
   router14.use(import_swagger_ui_express.default.serve);
   router14.get("/", import_swagger_ui_express.default.setup(swaggerSpec, swaggerUiOptions));
   app2.use("/docs", router14);
