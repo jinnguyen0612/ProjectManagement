@@ -62557,93 +62557,93 @@ Click the "Authorize" button and paste the API key above.
 var swaggerSpec = (0, import_swagger_jsdoc.default)(options);
 var setupSwagger = (app2) => {
   const router14 = (0, import_express.Router)();
+  const customSwaggerJs = `
+        window.addEventListener('load', function() {
+            const waitForUi = setInterval(function() {
+                if (!window.ui) return;
+                clearInterval(waitForUi);
+
+                const STORAGE_KEY = 'swagger_tokens';
+
+                function saveTokens(accessToken, refreshToken) {
+                    try {
+                        const current = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                        if (accessToken) current.accessToken = accessToken;
+                        if (refreshToken) current.refreshToken = refreshToken;
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+                    } catch(e) {}
+                }
+
+                function getTokens() {
+                    try {
+                        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                    } catch(e) { return {}; }
+                }
+
+                function applyAccessToken(accessToken) {
+                    window.ui.authActions.authorize({
+                        bearerAuth: {
+                            name: 'bearerAuth',
+                            schema: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+                            value: accessToken,
+                        }
+                    });
+                }
+
+                // Restore token from localStorage on page load
+                const saved = getTokens();
+                if (saved.accessToken) {
+                    applyAccessToken(saved.accessToken);
+                    console.log('[Swagger] Restored access token from localStorage');
+                }
+
+                const configs = window.ui.getConfigs();
+                const originalResponseInterceptor = configs.responseInterceptor;
+
+                // Request interceptor: auto-fill body for refresh-token endpoint
+                configs.requestInterceptor = function(request) {
+                    try {
+                        if (request.url && request.url.includes('/auth/refresh-token')) {
+                            const tokens = getTokens();
+                            if (tokens.accessToken && tokens.refreshToken) {
+                                const body = JSON.parse(request.body || '{}');
+                                if (!body.accessToken) body.accessToken = tokens.accessToken;
+                                if (!body.refreshToken) body.refreshToken = tokens.refreshToken;
+                                request.body = JSON.stringify(body);
+                                console.log('[Swagger] Auto-filled refresh-token body');
+                            }
+                        }
+                    } catch(e) {}
+                    return request;
+                };
+
+                // Response interceptor: auto-inject tokens from auth responses
+                configs.responseInterceptor = function(response) {
+                    try {
+                        const url = response.url || '';
+                        const isLogin = url.includes('/auth/login') || url.includes('/auth/verify-register');
+                        const isRefresh = url.includes('/auth/refresh-token');
+
+                        if ((isLogin || isRefresh) && response.status === 200 && response.body && response.body.data) {
+                            const { accessToken, refreshToken } = response.body.data;
+                            if (accessToken) {
+                                applyAccessToken(accessToken);
+                                saveTokens(accessToken, isLogin ? refreshToken : getTokens().refreshToken);
+                                if (isRefresh && refreshToken) saveTokens(accessToken, refreshToken);
+                                console.log('[Swagger] Token auto-injected from ' + (isRefresh ? 'refresh' : 'login/verify'));
+                            }
+                        }
+                    } catch(e) {}
+                    return originalResponseInterceptor ? originalResponseInterceptor(response) : response;
+                };
+            }, 200);
+        });
+    `;
   const swaggerUiOptions = {
     swaggerOptions: {
       persistAuthorization: true,
       displayRequestDuration: true
     },
-    customJs: `
-            window.addEventListener('load', function() {
-                const waitForUi = setInterval(function() {
-                    if (!window.ui) return;
-                    clearInterval(waitForUi);
-
-                    const STORAGE_KEY = 'swagger_tokens';
-
-                    function saveTokens(accessToken, refreshToken) {
-                        try {
-                            const current = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-                            if (accessToken) current.accessToken = accessToken;
-                            if (refreshToken) current.refreshToken = refreshToken;
-                            localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
-                        } catch(e) {}
-                    }
-
-                    function getTokens() {
-                        try {
-                            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-                        } catch(e) { return {}; }
-                    }
-
-                    function applyAccessToken(accessToken) {
-                        window.ui.authActions.authorize({
-                            bearerAuth: {
-                                name: 'bearerAuth',
-                                schema: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-                                value: accessToken,
-                            }
-                        });
-                    }
-
-                    // Restore token from localStorage on page load
-                    const saved = getTokens();
-                    if (saved.accessToken) {
-                        applyAccessToken(saved.accessToken);
-                        console.log('[Swagger] Restored access token from localStorage');
-                    }
-
-                    const configs = window.ui.getConfigs();
-                    const originalResponseInterceptor = configs.responseInterceptor;
-
-                    // Request interceptor: auto-fill body for refresh-token endpoint
-                    configs.requestInterceptor = function(request) {
-                        try {
-                            if (request.url && request.url.includes('/auth/refresh-token')) {
-                                const tokens = getTokens();
-                                if (tokens.accessToken && tokens.refreshToken) {
-                                    const body = JSON.parse(request.body || '{}');
-                                    if (!body.accessToken) body.accessToken = tokens.accessToken;
-                                    if (!body.refreshToken) body.refreshToken = tokens.refreshToken;
-                                    request.body = JSON.stringify(body);
-                                    console.log('[Swagger] Auto-filled refresh-token body');
-                                }
-                            }
-                        } catch(e) {}
-                        return request;
-                    };
-
-                    // Response interceptor: auto-inject tokens from auth responses
-                    configs.responseInterceptor = function(response) {
-                        try {
-                            const url = response.url || '';
-                            const isLogin = url.includes('/auth/login') || url.includes('/auth/verify-register');
-                            const isRefresh = url.includes('/auth/refresh-token');
-
-                            if ((isLogin || isRefresh) && response.status === 200 && response.body && response.body.data) {
-                                const { accessToken, refreshToken } = response.body.data;
-                                if (accessToken) {
-                                    applyAccessToken(accessToken);
-                                    saveTokens(accessToken, isLogin ? refreshToken : getTokens().refreshToken);
-                                    if (isRefresh && refreshToken) saveTokens(accessToken, refreshToken);
-                                    console.log('[Swagger] Token auto-injected from ' + (isRefresh ? 'refresh' : 'login/verify'));
-                                }
-                            }
-                        } catch(e) {}
-                        return originalResponseInterceptor ? originalResponseInterceptor(response) : response;
-                    };
-                }, 200);
-            });
-        `,
     customCss: `
             .swagger-ui .topbar { display: none }
             .swagger-ui .info .title { color: #3b82f6; }
@@ -62672,12 +62672,16 @@ var setupSwagger = (app2) => {
         `,
     customSiteTitle: "Project Management API Docs",
     customfavIcon: "/assets/favicon.ico",
-    customCssUrl: "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css"
+    customJs: "/docs/custom.js"
   };
   const SWAGGER_UI_CDN = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0";
   router14.get("/swagger-ui.css", (req, res) => res.redirect(`${SWAGGER_UI_CDN}/swagger-ui.min.css`));
   router14.get("/swagger-ui-bundle.js", (req, res) => res.redirect(`${SWAGGER_UI_CDN}/swagger-ui-bundle.js`));
   router14.get("/swagger-ui-standalone-preset.js", (req, res) => res.redirect(`${SWAGGER_UI_CDN}/swagger-ui-standalone-preset.js`));
+  router14.get("/custom.js", (req, res) => {
+    res.setHeader("Content-Type", "application/javascript");
+    res.send(customSwaggerJs);
+  });
   router14.use(import_swagger_ui_express.default.serve);
   router14.get("/", import_swagger_ui_express.default.setup(swaggerSpec, swaggerUiOptions));
   app2.use("/docs", router14);
@@ -63230,10 +63234,10 @@ var helmetConfig = helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", "https://cdnjs.cloudflare.com"],
       workerSrc: ["'self'", "blob:"]
     }
   }
