@@ -3,6 +3,7 @@ import { validate } from "../middlewares/validate.middleware";
 import { authenticate } from "../middlewares/auth.middleware";
 import { loginSchema, refreshTokenSchema, registerSchema, resendOTPSchema, verifyRegisterSchema } from "../modules/auth/auth.schema";
 import { login, logout, refreshToken, register, resendOTP, verifyRegister } from "../modules/auth/auth.controller";
+import { loginLimiter, otpLimiter } from "../../../core/config/rate-limiter";
 
 const router = Router();
 
@@ -56,7 +57,7 @@ const router = Router();
  *       401:
  *         description: Invalid credentials
  */
-router.post("/login", validate(loginSchema), login);
+router.post("/login", loginLimiter, validate(loginSchema), login);
 
 /**
  * @swagger
@@ -164,7 +165,7 @@ router.post("/register", validate(registerSchema), register);
  *       400:
  *         description: Invalid OTP
  */
-router.post("/resend-otp", validate(resendOTPSchema), resendOTP);
+router.post("/resend-otp", otpLimiter, validate(resendOTPSchema), resendOTP);
 
 /**
  * @swagger

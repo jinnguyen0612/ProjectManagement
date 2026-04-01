@@ -9,12 +9,9 @@ import permissionRoutes from "./permission.routes"
 import projectRoutes from "./project.routes"
 import projectPermissionRoutes from "./project-permission.routes"
 import { validateApiKey } from "../middlewares/apiKey.middleware";
-import { authLimiter } from "../../../core/config/rate-limiter";
-
 const router = Router();
 
 router.use(validateApiKey);
-router.use(authLimiter);
 
 router.use("/auth", authRoutes);
 router.use("/api-key", apiKeyRoutes);

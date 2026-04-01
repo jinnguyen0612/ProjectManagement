@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { validate } from "../middlewares/validate.middleware";
-import { authLimiter } from "../../../core/config/rate-limiter";
 import { changePassword, getUserProfile, updateProfile } from "../modules/profile/profile.controller";
 import { authenticate } from "../middlewares/auth.middleware";
 import { changePasswordSchema, updateProfileSchema } from "../modules/profile/profile.schema";

@@ -6,22 +6,20 @@
     },
     {
         "label": "Dự án",
-        "href": "/dashboard/projects",
+        "href": "/projects",
         "icon": "projects",
         "permissions": ["project.read"]
     },
     {
         "label": "Người dùng",
-        "href": "/dashboard/users",
+        "href": "/users",
         "icon": "users",
-        "roles": ["admin"],
-        "permissions": ["user.read"]
+        "roles": ["admin"]
     },
     {
         "label": "Cài đặt",
-        "href": "/dashboard/settings",
+        "href": "/settings",
         "icon": "settings",
-        "roles": ["admin"],
-        "permissions": ["role.read"]
+        "roles": ["admin"]
     }
 ]
