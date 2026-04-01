@@ -47,7 +47,7 @@ export default function AuthGuard({
     // Check permissions
     if (requiredPermissions.length > 0) {
         const hasAll = requiredPermissions.every((perm) =>
-            hasPermission(tokenPayload.permissions, perm)
+            hasPermission(tokenPayload.role, tokenPayload.permissions, perm)
         );
         if (!hasAll) {
             notFound();

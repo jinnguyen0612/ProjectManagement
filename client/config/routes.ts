@@ -20,8 +20,8 @@ export const ROUTES = {
 /* ------------------------------------------------------------------ */
 
 export interface RouteConfig {
-    /** Nếu empty array → tất cả authenticated users đều vào được */
-    roles: UserRole[];
+    /** Nếu undefined hoặc empty array → tất cả authenticated users đều vào được */
+    roles?: UserRole[];
     /** Permission keys nếu muốn check permission thay vì role */
     permissions?: string[];
 }
@@ -34,9 +34,11 @@ export interface RouteConfig {
 const ROUTE_CONFIGS: Record<string, RouteConfig> = {
     '/dashboard/users': {
         roles: [UserRole.ADMIN],
+        permissions: ['user.read'],
     },
     '/dashboard/settings': {
         roles: [UserRole.ADMIN, UserRole.MANAGER],
+        permissions: ['role.read'],
     },
     // '/dashboard/projects' → không có ở đây → mọi user authenticated đều vào được
     // '/dashboard' → cũng vậy

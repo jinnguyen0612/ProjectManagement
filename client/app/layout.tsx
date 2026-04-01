@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Geist } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
-import { ToastProvider } from "@/components/ui/toast";
+import { Toaster } from "@/components/ui/sonner";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets: ["latin"], variable: "--font-sans"});
 
 const inter = Inter({
     variable: "--font-inter",
@@ -13,6 +16,9 @@ const inter = Inter({
 export const metadata: Metadata = {
     title: "PM System - Project Management",
     description: "Hệ thống quản lý dự án",
+    icons: {
+        icon: "/images/favicon-white.ico",
+    },
 };
 
 export default function RootLayout({
@@ -21,12 +27,11 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="vi" className={`${inter.variable} h-full antialiased`}>
+        <html lang="vi" className={cn("h-full", "antialiased", inter.variable, "font-sans", geist.variable)}>
             <body className="min-h-full flex flex-col">
                 <AuthProvider>
-                    <ToastProvider>
-                        {children}
-                    </ToastProvider>
+                    {children}
+                    <Toaster richColors position="top-right" closeButton />
                 </AuthProvider>
             </body>
         </html>

@@ -1,25 +1,33 @@
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
-import { getMenuForRole } from '@/config/menu';
-import { Boxes } from 'lucide-react';
+import { getFilteredMenu } from '@/config/menu';
+import { ArrowLeftToLine, Boxes } from 'lucide-react';
 import SidebarLink from './sidebar-link';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '../ui/button';
 
 export default function Sidebar() {
     const { tokenPayload } = useAuth();
     const role = tokenPayload?.role || 'user';
-    const menuItems = getMenuForRole(role);
+    const menuItems = getFilteredMenu(tokenPayload);
 
     return (
         <aside className="sidebar">
             {/* Logo */}
             <div className="sidebar__header">
-                <div className="sidebar__logo">
-                    <div className="sidebar__logo-icon">
-                        <Boxes size={24} />
+                <Link href="/dashboard">
+                    <div className="sidebar__logo">
+                        <div className="sidebar__logo-icon">
+                            <Image src="/images/logo-white.png" alt="Logo" width={100} height={100} />
+                        </div>
+                        <span className="sidebar__brand">PM System</span>
                     </div>
-                    <span className="sidebar__brand">PM System</span>
-                </div>
+                </Link>
+                <Button className='bg-transparent hover:bg-transparent hover:text-white' variant={'default'} size="icon" onClick={() => { }}>
+                    <ArrowLeftToLine size={24} />
+                </Button>
             </div>
 
             {/* Navigation */}

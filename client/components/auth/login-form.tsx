@@ -2,10 +2,11 @@
 
 import { useState, type FormEvent } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { useToast } from '@/components/ui/toast';
+import { toast } from 'sonner';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ROUTES } from '@/config/routes';
-import { User, Lock, Eye, EyeOff, Boxes } from 'lucide-react';
+import { User, Lock, Eye, EyeOff } from 'lucide-react';
+import Image from 'next/image';
 
 export default function LoginForm() {
     const [username, setUsername] = useState('');
@@ -14,7 +15,6 @@ export default function LoginForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { login } = useAuth();
-    const { toast } = useToast();
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -23,13 +23,16 @@ export default function LoginForm() {
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
 
+        // Tránh submit nhiều lần
+        if (isSubmitting) return;
+
         if (!username.trim() || !password.trim()) {
-            toast('warning', 'Vui lòng nhập đầy đủ thông tin');
+            toast.warning('Vui lòng nhập đầy đủ thông tin');
             return;
         }
 
         if (password.length < 6) {
-            toast('warning', 'Mật khẩu phải có ít nhất 6 ký tự');
+            toast.warning('Mật khẩu phải có ít nhất 6 ký tự');
             return;
         }
 
@@ -37,12 +40,12 @@ export default function LoginForm() {
 
         try {
             await login({ username: username.trim(), password });
-            toast('success', 'Đăng nhập thành công!');
+            toast.success('Đăng nhập thành công!');
             router.push(callbackUrl);
         } catch (err: any) {
             const message =
                 err?.response?.data?.message || err?.message || 'Đăng nhập thất bại';
-            toast('error', message);
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -53,7 +56,7 @@ export default function LoginForm() {
             <div className="login-form__header">
                 <div className="login-form__logo">
                     <div className="login-form__logo-icon">
-                        <Boxes size={28} />
+                        <Image src="/images/logo-white.png" alt="Logo" width={100} height={100} />
                     </div>
                 </div>
                 <h1 className="login-form__title">Đăng nhập</h1>

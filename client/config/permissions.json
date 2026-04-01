@@ -1,23 +1,22 @@
 {
     "admin": [
-        "users.view",
-        "users.create",
-        "users.edit",
-        "users.delete",
-        "projects.view",
-        "projects.create",
-        "projects.edit",
-        "projects.delete",
-        "settings.view",
-        "settings.edit"
+        "project.create", "project.read", "project.update", "project.delete",
+        "project.member.create", "project.member.delete", "project.member.update",
+        "task.create", "task.read", "task.update", "task.delete",
+        "label.create", "label.read", "label.update", "label.delete",
+        "status.create", "status.read", "status.update", "status.delete",
+        "user.create", "user.read", "user.update", "user.delete",
+        "role.create", "role.read", "role.update", "role.delete",
+        "permission.create", "permission.read", "permission.update", "permission.delete"
     ],
     "manager": [
-        "projects.view",
-        "projects.create",
-        "projects.edit",
-        "settings.view"
+        "project.create", "project.read", "project.update",
+        "project.member.create", "project.member.delete",
+        "task.create", "task.read", "task.update", "task.delete",
+        "label.read", "status.read", "user.read"
     ],
     "user": [
-        "projects.view"
+        "project.read",
+        "task.read", "task.update"
     ]
 }

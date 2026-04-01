@@ -1,0 +1,27 @@
+[
+    {
+        "label": "Dashboard",
+        "href": "/dashboard",
+        "icon": "dashboard"
+    },
+    {
+        "label": "Dự án",
+        "href": "/dashboard/projects",
+        "icon": "projects",
+        "permissions": ["project.read"]
+    },
+    {
+        "label": "Người dùng",
+        "href": "/dashboard/users",
+        "icon": "users",
+        "roles": ["admin"],
+        "permissions": ["user.read"]
+    },
+    {
+        "label": "Cài đặt",
+        "href": "/dashboard/settings",
+        "icon": "settings",
+        "roles": ["admin"],
+        "permissions": ["role.read"]
+    }
+]

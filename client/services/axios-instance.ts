@@ -47,8 +47,11 @@ apiClient.interceptors.response.use(
     async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
+        // Không xử lý refresh token/redirect nếu là request login
+        const isLoginRequest = originalRequest.url?.includes('/auth/login');
+
         // Nếu 401 và chưa retry
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry && !isLoginRequest) {
             // Nếu đang refresh → queue request lại
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
@@ -67,7 +70,7 @@ apiClient.interceptors.response.use(
             if (!accessToken || !refreshToken) {
                 isRefreshing = false;
                 clearAuthCookies();
-                if (typeof window !== 'undefined') {
+                if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
                     window.location.href = '/login';
                 }
                 return Promise.reject(error);
@@ -95,7 +98,7 @@ apiClient.interceptors.response.use(
             } catch (refreshError) {
                 processQueue(refreshError as AxiosError, null);
                 clearAuthCookies();
-                if (typeof window !== 'undefined') {
+                if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
                     window.location.href = '/login';
                 }
                 return Promise.reject(refreshError);

@@ -5,8 +5,8 @@ import { getRouteConfig } from '@/config/routes';
  * Kiểm tra user có role nằm trong danh sách required hay không.
  * Nếu requiredRoles rỗng → pass (chỉ cần authenticated).
  */
-export function hasRole(userRole: string, requiredRoles: UserRole[]): boolean {
-    if (requiredRoles.length === 0) return true;
+export function hasRole(userRole: string, requiredRoles?: UserRole[]): boolean {
+    if (!requiredRoles || requiredRoles.length === 0) return true;
     return requiredRoles.includes(userRole as UserRole);
 }
 
@@ -56,7 +56,7 @@ export function canAccessRoute(
     if (!routeConfig) return true;
 
     // Check role
-    if (routeConfig.roles.length > 0) {
+    if (routeConfig.roles && routeConfig.roles.length > 0) {
         if (!hasRole(payload.role, routeConfig.roles)) return false;
     }
 
