@@ -18,6 +18,7 @@ import v1Routes from "./api/v1/routes/index";
 };
 
 const app = express();
+app.set("trust proxy", 1);
 app.use(express.json());
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 app.use(corsConfig);
